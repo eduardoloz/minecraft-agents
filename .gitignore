@@ -1,0 +1,30 @@
+# SSH keys — NEVER commit private keys
+github_key
+github_key.pub
+project_key
+project_key.pub
+
+# Config files with secrets
+**/conf/config.json
+
+# Python virtualenv
+server-setup/venv/
+
+# Minecraft world/server data (large, frequently changing)
+server-setup/data/
+
+# Embedding models (large binary files)
+server-setup/embeddings/
+
+# Server and mod JARs (binary, download separately)
+server-setup/server/
+server-setup/mods/
+
+# Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db

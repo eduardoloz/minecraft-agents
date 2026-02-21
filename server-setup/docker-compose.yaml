@@ -1,0 +1,40 @@
+services:
+  voyager:
+    image: voyager:v0.1
+    volumes:
+      - ~/MINECRAFTEXPERIMENTS/AgenticMinecraft/Odyssey/Odyssey:/app/Voyager
+    tty: true
+    stdin_open: true
+    environment:
+      MC_SERVER_HOST: "mc"
+      MC_SERVER_PORT: "25565"
+    depends_on:
+      - mc
+
+  mc:
+    image: itzg/minecraft-server
+    tty: true
+    stdin_open: true
+    ports:
+      - "25573:25565"
+    environment:
+      EULA: "TRUE"
+      TYPE: FABRIC
+      ONLINE_MODE: "FALSE"
+      VERSION: "1.19.4"
+      REMOVE_OLD_MODS: "TRUE"
+      FABRIC_LOADER_VERSION: "0.14.21"
+      ALLOW_FLIGHT: "TRUE"
+      MAX_MEMORY: 8G
+      INIT_MEMORY: 8G
+      VIEW_DISTANCE: "1"
+      ENTITY_BROADCAST_RANGE_PERCENTAGE: "50"
+      ENFORCE_SECURE_PROFILE: "FALSE"
+      OPS: |
+        bot
+        username1
+        username2
+    volumes:
+      - ~/MINECRAFTEXPERIMENTS/AgenticMinecraft/server-setup/data:/data
+      - ~/MINECRAFTEXPERIMENTS/AgenticMinecraft/server-setup/mods:/data/mods
+      - ~/MINECRAFTEXPERIMENTS/AgenticMinecraft/server-setup/server:/server

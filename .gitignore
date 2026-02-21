@@ -20,10 +20,20 @@ server-setup/embeddings/
 server-setup/server/
 server-setup/mods/
 
+# Node dependencies (install via yarn/npm)
+**/node_modules/
+
 # Python cache
 **/__pycache__/
 **/*.pyc
 **/*.pyo
+
+# Odyssey crawler data (large dataset)
+Odyssey/MC-Crawler/crawler_data/
+
+# Odyssey checkpoints and logs
+Odyssey/Odyssey/ckpt/
+Odyssey/Odyssey/logs/
 
 # OS files
 .DS_Store

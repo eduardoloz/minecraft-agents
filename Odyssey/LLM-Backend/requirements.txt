@@ -1,0 +1,9 @@
+fastapi
+torch
+transformers
+bitsandbytes
+accelerate
+asyncio
+random
+http
+dashscope

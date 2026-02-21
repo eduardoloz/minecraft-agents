@@ -152,15 +152,35 @@ app.post("/start", (req, res) => {
 app.post("/step", async (req, res) => {
     // import useful package
     let response_sent = false;
-    function otherError(err) {
-        console.log("Uncaught Error");
-        bot.emit("error", handleError(err));
-        bot.waitForTicks(bot.waitTicks).then(() => {
-            if (!response_sent) {
-                response_sent = true;
+
+    function safeRespond(status = 200) {
+        if (response_sent || res.headersSent) return;
+        response_sent = true;
+        try {
+            if (status !== 200) {
+                res.status(status).json({ error: "Internal mineflayer error" });
+            } else if (bot) {
                 res.json(bot.observe());
+            } else {
+                res.status(500).json({ error: "Bot is not available" });
             }
-        });
+        } catch (e) {
+            console.log("Failed to send response:", e.message);
+        }
+    }
+
+    function otherError(err) {
+        // Remove ourselves immediately to prevent recursive calls
+        process.off("uncaughtException", otherError);
+        console.log("Uncaught Error:", err);
+        if (bot) {
+            try { bot.emit("error", handleError(err)); } catch (e) { /* no error listener */ }
+            bot.waitForTicks(bot.waitTicks)
+                .then(() => safeRespond())
+                .catch(() => safeRespond(500));
+        } else {
+            safeRespond(500);
+        }
     }
 
     process.on("uncaughtException", otherError);

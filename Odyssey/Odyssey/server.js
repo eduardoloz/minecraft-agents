@@ -201,16 +201,20 @@ app.post('/bots/:name/task', (req, res) => {
 
     const cmd = { action: 'task', task, reset_env };
 
-    if (queue) {
+    if (state.status === 'running') {
+        if (preempt) {
+            // Preempt: put new task at front of queue, stop current
+            state.taskQueue.unshift(cmd);
+            sendCmd(req.params.name, { action: 'stop' });
+            return res.json({ status: 'preempting', task });
+        }
+        // Bot busy — append to queue
         state.taskQueue.push(cmd);
         return res.json({ status: 'queued', task, queueLength: state.taskQueue.length });
     }
-    if (state.status === 'running') {
-        if (!preempt) return busy(state, res);
-        // Preempt: put new task at front of queue, stop current
-        state.taskQueue.unshift(cmd);
-        sendCmd(req.params.name, { action: 'stop' });
-        return res.json({ status: 'preempting', task });
+    if (queue) {
+        state.taskQueue.push(cmd);
+        return res.json({ status: 'queued', task, queueLength: state.taskQueue.length });
     }
     sendCmd(req.params.name, cmd);
     res.json({ status: 'sent', task });
@@ -228,15 +232,18 @@ app.post('/bots/:name/subgoal', (req, res) => {
 
     const cmd = { action: 'subgoal', task, sub_goals, reset_env };
 
-    if (queue) {
+    if (state.status === 'running') {
+        if (preempt) {
+            state.taskQueue.unshift(cmd);
+            sendCmd(req.params.name, { action: 'stop' });
+            return res.json({ status: 'preempting', task });
+        }
         state.taskQueue.push(cmd);
         return res.json({ status: 'queued', task, queueLength: state.taskQueue.length });
     }
-    if (state.status === 'running') {
-        if (!preempt) return busy(state, res);
-        state.taskQueue.unshift(cmd);
-        sendCmd(req.params.name, { action: 'stop' });
-        return res.json({ status: 'preempting', task });
+    if (queue) {
+        state.taskQueue.push(cmd);
+        return res.json({ status: 'queued', task, queueLength: state.taskQueue.length });
     }
     sendCmd(req.params.name, cmd);
     res.json({ status: 'sent', task, sub_goals });
@@ -251,15 +258,18 @@ app.post('/bots/:name/explore', (req, res) => {
     const { goal = null, reset_env = false, preempt = false, queue = false } = req.body ?? {};
     const cmd = { action: 'explore', goal, reset_env };
 
-    if (queue) {
+    if (state.status === 'running') {
+        if (preempt) {
+            state.taskQueue.unshift(cmd);
+            sendCmd(req.params.name, { action: 'stop' });
+            return res.json({ status: 'preempting', goal });
+        }
         state.taskQueue.push(cmd);
         return res.json({ status: 'queued', goal, queueLength: state.taskQueue.length });
     }
-    if (state.status === 'running') {
-        if (!preempt) return busy(state, res);
-        state.taskQueue.unshift(cmd);
-        sendCmd(req.params.name, { action: 'stop' });
-        return res.json({ status: 'preempting', goal });
+    if (queue) {
+        state.taskQueue.push(cmd);
+        return res.json({ status: 'queued', goal, queueLength: state.taskQueue.length });
     }
     sendCmd(req.params.name, cmd);
     res.json({ status: 'sent', goal });
@@ -276,15 +286,18 @@ app.post('/bots/:name/skill', (req, res) => {
 
     const cmd = { action: 'skill', skill_path, parameters };
 
-    if (queue) {
+    if (state.status === 'running') {
+        if (preempt) {
+            state.taskQueue.unshift(cmd);
+            sendCmd(req.params.name, { action: 'stop' });
+            return res.json({ status: 'preempting', skill_path });
+        }
         state.taskQueue.push(cmd);
         return res.json({ status: 'queued', skill_path, queueLength: state.taskQueue.length });
     }
-    if (state.status === 'running') {
-        if (!preempt) return busy(state, res);
-        state.taskQueue.unshift(cmd);
-        sendCmd(req.params.name, { action: 'stop' });
-        return res.json({ status: 'preempting', skill_path });
+    if (queue) {
+        state.taskQueue.push(cmd);
+        return res.json({ status: 'queued', skill_path, queueLength: state.taskQueue.length });
     }
     sendCmd(req.params.name, cmd);
     res.json({ status: 'sent', skill_path, parameters });
@@ -321,6 +334,16 @@ app.delete('/bots/:name/queue', (req, res) => {
     res.json({ status: 'queue cleared' });
 });
 
+// DELETE /bots/:name/queue/pop  — remove and return the next queued item (index 0)
+app.delete('/bots/:name/queue/pop', (req, res) => {
+    const state = bots[req.params.name];
+    if (!state) return notFound(req.params.name, res);
+    if (state.taskQueue.length === 0)
+        return res.status(404).json({ error: 'queue is empty' });
+    const popped = state.taskQueue.shift();
+    res.json({ popped, queueLength: state.taskQueue.length });
+});
+
 // DELETE /bots/:name/queue/:index  — remove one item by position
 app.delete('/bots/:name/queue/:index', (req, res) => {
     const state = bots[req.params.name];
@@ -348,5 +371,6 @@ app.listen(PORT, () => {
     console.log('  POST   /bots/:name/stop           interrupt task  (clear_queue?)');
     console.log('  GET    /bots/:name/queue          view task queue');
     console.log('  DELETE /bots/:name/queue          clear task queue');
+    console.log('  DELETE /bots/:name/queue/pop      pop next queued task');
     console.log('  DELETE /bots/:name/queue/:index   remove one queued task');
 });

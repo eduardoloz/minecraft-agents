@@ -46,7 +46,6 @@ class PlannerAgent:
         self.logger = get_logger("CurriculumAgent")
         self.mode = mode
         self.ckpt_dir = ckpt_dir
-        U.f_mkdir(f"{ckpt_dir}/curriculum/vectordb")
         if resume:
             self.logger.info(f"Loading Curriculum Agent from {ckpt_dir}/curriculum")
             self.completed_tasks = U.load_json(
@@ -58,6 +57,8 @@ class PlannerAgent:
             self.completed_tasks = []
             self.failed_tasks = []
             self.qa_cache = {}
+            U.f_remove(f"{ckpt_dir}/curriculum/vectordb")
+        U.f_mkdir(f"{ckpt_dir}/curriculum/vectordb")
         # vectordb for qa cache
         self.qa_cache_questions_vectordb = Chroma(
             collection_name="qa_cache_questions_vectordb",

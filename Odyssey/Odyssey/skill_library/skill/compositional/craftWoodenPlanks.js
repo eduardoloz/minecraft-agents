@@ -9,6 +9,10 @@ async function craftWoodenPlanks(bot) {
   }
   console.log('Craft Wooden Planks, after Mine Wood Log, bot inventory:', bot.inventory);
   logInInventory = logNames.find(logName => bot.inventory.count(mcData.itemsByName[logName].id) > 0);
+  if (!logInInventory) {
+    bot.chat("Still no wooden log in inventory, cannot craft planks.");
+    return;
+  }
   const logIndex = logNames.indexOf(logInInventory);
   const plankName = plankNames[logIndex];
   bot.chat(`Crafting 4 ${plankName}...`);

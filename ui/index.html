@@ -54,6 +54,7 @@
                     <option value="subgoal">Subgoal</option>
                     <option value="skill">Skill</option>
                     <option value="stop">Stop</option>
+                    <option value="pop_queue">Pop Queue</option>
                 </select>
             </div>
 
@@ -75,27 +76,43 @@
                 <label><input type="checkbox" id="clearQueueInput"> Clear task queue</label>
             </div>
 
+            <div class="extra-fields" id="taskOptions" style="display:flex;gap:16px;align-items:center;">
+                <label><input type="checkbox" id="preemptInput"> Preempt (interrupt current task)</label>
+                <label><input type="checkbox" id="resetEnvInput"> Reset env</label>
+            </div>
+
             <div class="button-row">
                 <button class="instruction-button" onclick="sendInstruction()">⚡ Send</button>
+                <button class="instruction-button-override" onclick="overrideInstruction()">🔥 OVERRIDE INSTRUCTION</button>
                 <button class="instruction-button-stop" onclick="stopSelectedBot()">⏹ Stop Bot</button>
             </div>
         </div>
 
         <!-- Conversations Panel -->
-        <div class="section" id="conversationsSection" style="display:none;">
-            <div class="section-title-row">
-                <div class="section-title" style="margin-bottom:0; border-bottom:none;">💬 LLM Conversations — <span id="convBotName" style="color:#a78bfa;"></span></div>
-                <button class="btn-sm btn-select" onclick="fetchConversations()" style="margin-left:auto;">↻ Refresh</button>
+        <div class="section" id="conversationsSection">
+            <div class="section-title">
+                💬 LLM Conversations
+                <span id="convoBotLabel" style="font-size:0.75em;color:#a0a0a0;margin-left:8px;">— select a bot</span>
+                <button class="btn-sm btn-select" style="float:right;margin-top:2px;" onclick="fetchConversations()">Refresh</button>
             </div>
-            <div style="color:#a0a0a0; margin:8px 0 12px; font-size:0.85em;">Live LLM turns for selected bot. Each turn = one action-agent attempt.</div>
-            <div id="conversationsContainer"></div>
+            <div style="color:#a0a0a0;margin-bottom:8px;font-size:0.85em;">
+                Every LLM turn for the last completed task. Each turn = one action-agent attempt (up to 4 retries per task).
+            </div>
+            <div id="conversationsContainer">
+                <div style="color:#555;font-size:0.85em;padding:6px 0;">Select a bot to view its conversations.</div>
+            </div>
         </div>
 
         <!-- Server Activity Log -->
         <div class="section">
             <div class="section-title">📡 Server Activity</div>
-            <div style="color:#a0a0a0; margin-bottom:8px; font-size:0.85em;">Real-time bot activity (connected, started tasks, completed, errors)</div>
-            <div id="serverLogContainer"></div>
+            <div style="color:#a0a0a0; margin-bottom:8px; font-size:0.85em;">Recent bot join/leave messages</div>
+            <div id="serverLogContainer">
+                <div class="log-entry">
+                    <div class="log-time">--:--:--</div>
+                    <div class="log-action">No events recorded yet.</div>
+                </div>
+            </div>
         </div>
 
         <!-- Spawn Bot -->
@@ -107,6 +124,14 @@
                     <input type="text" id="spawnName" placeholder="bot1">
                 </div>
                 <div class="spawn-form-group">
+                    <label>MC Port *</label>
+                    <input type="text" id="spawnPort" placeholder="3000">
+                </div>
+                <div class="spawn-form-group">
+                    <label>Username</label>
+                    <input type="text" id="spawnUsername" placeholder="Steve">
+                </div>
+                <div class="spawn-form-group">
                     <label>Environment</label>
                     <select id="spawnEnvironment">
                         <option value="">Default</option>
@@ -114,6 +139,17 @@
                         <option value="combat">Combat</option>
                         <option value="farming">Farming</option>
                         <option value="subgoal">Subgoal</option>
+                    </select>
+                </div>
+                <div class="spawn-form-group">
+                    <label>Model</label>
+                    <select id="spawnModel">
+                        <option value="">Default</option>
+                        <option value="llama3_8b_v3">llama3_8b_v3</option>
+                        <option value="llama3_8b">llama3_8b</option>
+                        <option value="llama3_70b_v1">llama3_70b_v1</option>
+                        <option value="qwen2-7b">qwen2-7b</option>
+                        <option value="qwen2-72b">qwen2-72b</option>
                     </select>
                 </div>
             </div>
@@ -148,30 +184,6 @@
             el.style.display = 'block';
             clearTimeout(_toastTimer);
             _toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
-            
-            // Also add to activity log
-            addActivityEntry('UI', isError ? '⚠️' : '✓', msg);
-        }
-
-        function addActivityEntry(botName, action, details) {
-            const container = document.getElementById('serverLogContainer');
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            const timestamp = new Date().toLocaleTimeString();
-            const actionText = `<strong>${escapeHtml(botName)}</strong> ${escapeHtml(action)} ${escapeHtml(details || '')}`;
-            entry.innerHTML = `<div class="log-time">${timestamp}</div><div class="log-action">${actionText}</div>`;
-            
-            // Add to top of container
-            if (container.firstChild) {
-                container.insertBefore(entry, container.firstChild);
-            } else {
-                container.appendChild(entry);
-            }
-            
-            // Keep only last 100 entries
-            while (container.children.length > 100) {
-                container.removeChild(container.lastChild);
-            }
         }
 
         function escapeHtml(str) {
@@ -202,6 +214,7 @@
                 // API returns either an array or an object keyed by bot name
                 const bots = Array.isArray(data) ? data : Object.values(data);
                 renderApiBots(bots);
+                updateActivityFromBots(bots);
                 const active = bots.filter(b => b.status === 'running').length;
                 const online = bots.filter(b => b.status !== 'dead').length;
                 document.getElementById('statTotalBots').textContent = bots.length;
@@ -229,6 +242,8 @@
                         <span class="status ${statusClass}">${escapeHtml(bot.status)}</span>
                     </div>
                     <div class="card-stats">
+                        <div class="stat-item"><span>Port:</span><span class="stat-value">${bot.port ?? '—'}</span></div>
+                        <div class="stat-item"><span>User:</span><span class="stat-value">${escapeHtml(bot.username || '—')}</span></div>
                         <div class="stat-item"><span>Task:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
                     </div>
                     <div class="live-bot-actions">
@@ -243,75 +258,70 @@
 
         // ── Bot actions ───────────────────────────────────────────────────────────
 
-        let _convPollInterval = null;
-
         function selectBotByName(name) {
             selectedBot = name;
             document.getElementById('targetName').textContent = `Instructing: ${name}`;
-            document.getElementById('convBotName').textContent = name;
-            document.getElementById('conversationsSection').style.display = '';
+            document.getElementById('convoBotLabel').textContent = `— ${name}`;
             showApiToast(`Selected bot: ${name}`);
             fetchConversations();
-            if (_convPollInterval) clearInterval(_convPollInterval);
-            _convPollInterval = setInterval(fetchConversations, 3000);
         }
+
+        // ── Conversations ─────────────────────────────────────────────────────────
 
         async function fetchConversations() {
             if (!selectedBot) return;
             try {
                 const data = await apiCall('GET', `/bots/${encodeURIComponent(selectedBot)}/conversations`);
-                renderConversations(data.conversations || []);
+                renderConversations(data.conversations ?? []);
             } catch (e) {
-                console.error('Failed to fetch conversations:', e);
+                document.getElementById('conversationsContainer').innerHTML =
+                    `<div style="color:#e55;font-size:0.85em;">Failed to load: ${escapeHtml(e.message)}</div>`;
             }
         }
 
         function renderConversations(conversations) {
             const container = document.getElementById('conversationsContainer');
-            if (conversations.length === 0) {
-                container.innerHTML = '<div style="color:#666; font-size:0.85em; padding:12px 0;">No LLM turns yet — waiting for bot activity...</div>';
+            if (!conversations || conversations.length === 0) {
+                container.innerHTML = '<div style="color:#555;font-size:0.85em;padding:6px 0;">No conversations recorded for this bot yet.</div>';
                 return;
             }
-            container.innerHTML = '';
-            conversations.forEach(([system, human, ai], i) => {
-                const isLast = i === conversations.length - 1;
-                const turn = document.createElement('div');
-                turn.className = 'conv-turn';
-                turn.innerHTML = `
-                    <div class="conv-turn-header" onclick="toggleTurn(this)">
-                        ${isLast ? '▼' : '▶'} Turn ${i + 1} of ${conversations.length}
+            container.innerHTML = conversations.map((turn, i) => {
+                const [system, human, ai] = turn;
+                return `
+                <details class="convo-turn" ${i === conversations.length - 1 ? 'open' : ''}>
+                    <summary class="convo-summary">Turn ${i + 1} of ${conversations.length}</summary>
+                    <div class="convo-body">
+                        <details class="convo-part">
+                            <summary class="convo-part-label convo-system">⚙ System Prompt</summary>
+                            <pre class="convo-text">${escapeHtml(system)}</pre>
+                        </details>
+                        <details class="convo-part" open>
+                            <summary class="convo-part-label convo-human">👤 Human Message</summary>
+                            <pre class="convo-text">${escapeHtml(human)}</pre>
+                        </details>
+                        <details class="convo-part" open>
+                            <summary class="convo-part-label convo-ai">🤖 AI Response</summary>
+                            <pre class="convo-text">${escapeHtml(ai)}</pre>
+                        </details>
                     </div>
-                    <div class="conv-turn-body" style="${isLast ? '' : 'display:none;'}">
-                        <div class="conv-section">
-                            <div class="conv-section-header conv-system" onclick="toggleSection(this)">▶ ⚙ System Prompt</div>
-                            <pre class="conv-text conv-section-body" style="display:none;">${escapeHtml(system)}</pre>
-                        </div>
-                        <div class="conv-section">
-                            <div class="conv-section-header conv-human" onclick="toggleSection(this)">▼ 👤 Human Message</div>
-                            <pre class="conv-text conv-section-body">${escapeHtml(human)}</pre>
-                        </div>
-                        <div class="conv-section">
-                            <div class="conv-section-header conv-ai" onclick="toggleSection(this)">▼ 🤖 AI Response</div>
-                            <pre class="conv-text conv-section-body">${escapeHtml(ai)}</pre>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(turn);
-            });
+                </details>`;
+            }).join('');
         }
 
-        function toggleTurn(header) {
-            const body = header.nextElementSibling;
-            const open = body.style.display !== 'none';
-            body.style.display = open ? 'none' : '';
-            header.textContent = header.textContent.replace(open ? '▼' : '▶', open ? '▶' : '▼');
-        }
-
-        function toggleSection(header) {
-            const body = header.nextElementSibling;
-            const open = body.style.display !== 'none';
-            body.style.display = open ? 'none' : '';
-            header.textContent = header.textContent.replace(open ? '▼' : '▶', open ? '▶' : '▼');
+        async function overrideInstruction() {
+            if (!selectedBot) { showApiToast('Select a bot first', true); return; }
+            const text = document.getElementById('instructionInput').value.trim();
+            if (!text) { showApiToast('Enter an instruction to override with', true); return; }
+            const bot = encodeURIComponent(selectedBot);
+            try {
+                await apiCall('POST', `/bots/${bot}/stop`, { clear_queue: false });
+                await apiCall('DELETE', `/bots/${bot}/queue`);
+                await apiCall('POST', `/bots/${bot}/explore`, { goal: text, preempt: true, reset_env: false });
+                showApiToast(`🔥 Override sent to ${selectedBot}: ${text}`);
+                document.getElementById('instructionInput').value = '';
+            } catch (e) {
+                showApiToast(`Override failed: ${e.message}`, true);
+            }
         }
 
         async function stopBotByName(name) {
@@ -341,25 +351,18 @@
 
         async function spawnBot() {
             const name = document.getElementById('spawnName').value.trim();
-            if (!name) { showApiToast('Bot Name is required', true); return; }
-
-            // Auto-assign port: start at 3000, increment past any in-use ports
-            let port = 3000;
-            try {
-                const data = await apiCall('GET', '/bots');
-                const bots = Array.isArray(data) ? data : Object.values(data);
-                const usedPorts = bots.map(b => b.port).filter(p => p >= 3000);
-                while (usedPorts.includes(port)) port++;
-            } catch {}
-
-            const body = { name, port, username: name };
+            const port = parseInt(document.getElementById('spawnPort').value.trim(), 10);
+            if (!name || !port) { showApiToast('Bot Name and MC Port are required', true); return; }
+            const body = { name, port };
+            const username    = document.getElementById('spawnUsername').value.trim();
             const environment = document.getElementById('spawnEnvironment').value;
+            const model       = document.getElementById('spawnModel').value;
+            if (username)    body.username    = username;
             if (environment) body.environment = environment;
+            if (model)       body.model       = model;
             try {
                 await apiCall('POST', '/bots', body);
                 showApiToast(`Spawned bot: ${name}`);
-                document.getElementById('spawnName').value = '';
-                document.getElementById('spawnEnvironment').value = '';
                 fetchBots();
             } catch (e) {
                 showApiToast(`Spawn failed: ${e.message}`, true);
@@ -374,12 +377,14 @@
             document.getElementById('subgoalFields').classList.toggle('visible', type === 'subgoal');
             document.getElementById('skillFields').classList.toggle('visible', type === 'skill');
             document.getElementById('stopFields').classList.toggle('visible', type === 'stop');
-            mainInput.style.display = type === 'stop' ? 'none' : '';
+            document.getElementById('taskOptions').style.display = type === 'task' ? 'flex' : 'none';
+            mainInput.style.display = ['stop', 'pop_queue'].includes(type) ? 'none' : '';
             const placeholders = {
-                task:    "Enter task (e.g., 'Mine 10 diamonds')",
-                explore: "Enter exploration goal (e.g., 'Find a village')",
-                subgoal: "Enter overall task description",
-                skill:   "Parameters (comma-separated, optional)",
+                task:      "Enter task (e.g., 'Mine 10 diamonds')",
+                explore:   "Exploration goal — leave empty for open-ended (e.g., 'Find a village')",
+                subgoal:   "Enter overall task description",
+                skill:     "Parameters (comma-separated, optional)",
+                pop_queue: "",
             };
             mainInput.placeholder = placeholders[type] || '';
         }
@@ -388,26 +393,32 @@
             if (!selectedBot) { showApiToast('Select a bot first', true); return; }
             const type = document.getElementById('commandType').value;
             const text = document.getElementById('instructionInput').value.trim();
+            const bot  = encodeURIComponent(selectedBot);
             try {
                 if (type === 'task') {
                     if (!text) { showApiToast('Enter a task', true); return; }
-                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/task`, { task: text });
+                    const preempt   = document.getElementById('preemptInput').checked;
+                    const reset_env = document.getElementById('resetEnvInput').checked;
+                    await apiCall('POST', `/bots/${bot}/task`, { task: text, reset_env, preempt });
                 } else if (type === 'explore') {
-                    if (!text) { showApiToast('Enter a goal', true); return; }
-                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/explore`, { goal: text });
+                    // empty goal = open-ended exploration
+                    const body = text ? { goal: text } : {};
+                    await apiCall('POST', `/bots/${bot}/explore`, body);
                 } else if (type === 'subgoal') {
                     if (!text) { showApiToast('Enter a task description', true); return; }
                     const raw = document.getElementById('subGoalsInput').value.trim();
                     const sub_goals = raw ? raw.split('\n').map(s => s.trim()).filter(Boolean) : [];
-                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/subgoal`, { task: text, sub_goals });
+                    await apiCall('POST', `/bots/${bot}/subgoal`, { task: text, sub_goals });
                 } else if (type === 'skill') {
                     const skill_path = document.getElementById('skillPathInput').value.trim();
                     if (!skill_path) { showApiToast('Enter a skill path', true); return; }
                     const parameters = text ? text.split(',').map(s => s.trim()).filter(Boolean) : [];
-                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/skill`, { skill_path, parameters });
+                    await apiCall('POST', `/bots/${bot}/skill`, { skill_path, parameters });
                 } else if (type === 'stop') {
                     const clear_queue = document.getElementById('clearQueueInput').checked;
-                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/stop`, { clear_queue });
+                    await apiCall('POST', `/bots/${bot}/stop`, { clear_queue });
+                } else if (type === 'pop_queue') {
+                    await apiCall('DELETE', `/bots/${bot}/queue/pop`);
                 }
                 showApiToast(`✓ ${type} sent to ${selectedBot}`);
                 document.getElementById('instructionInput').value = '';
@@ -427,33 +438,45 @@
             setInterval(fetchBots, 5000);
         });
 
-        // ── Server activity log ───────────────────────────────────────────────────
+        // ── Server activity log (derived from live /bots poll) ───────────────────
 
-        let _lastServerActivityTime = 0;
+        const _activityLog = [];   // {time, msg} — rolling 30-entry buffer
+        let   _lastBotSnapshot = {};
 
-        async function fetchBotActivity() {
-            const container = document.getElementById('serverLogContainer');
-            try {
-                const res = await fetch(`${API_BASE}/activity?limit=50`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                const events = data.activity || [];
-                
-                // Only add new events that arrived after last fetch
-                events.forEach(ev => {
-                    const eventTime = new Date(ev.fullTime).getTime();
-                    if (eventTime > _lastServerActivityTime) {
-                        addActivityEntry(ev.botName, ev.action, ev.details);
-                        _lastServerActivityTime = eventTime;
-                    }
-                });
-            } catch (err) {
-                console.error('Failed to fetch activity:', err);
-            }
+        function updateActivityFromBots(bots) {
+            const now = new Date().toLocaleTimeString();
+            bots.forEach(bot => {
+                const prev = _lastBotSnapshot[bot.name];
+                if (!prev) {
+                    _activityLog.unshift({ time: now, msg: `${bot.name} registered (port ${bot.port})` });
+                } else if (prev.status !== bot.status) {
+                    _activityLog.unshift({ time: now, msg: `${bot.name}: ${prev.status} → ${bot.status}${bot.currentTask ? ' — ' + bot.currentTask : ''}` });
+                } else if (prev.currentTask !== bot.currentTask && bot.currentTask) {
+                    _activityLog.unshift({ time: now, msg: `${bot.name}: task → ${bot.currentTask}` });
+                }
+                _lastBotSnapshot[bot.name] = { status: bot.status, currentTask: bot.currentTask };
+            });
+            // detect removed bots
+            Object.keys(_lastBotSnapshot).forEach(name => {
+                if (!bots.find(b => b.name === name)) {
+                    _activityLog.unshift({ time: now, msg: `${name} removed` });
+                    delete _lastBotSnapshot[name];
+                }
+            });
+            if (_activityLog.length > 30) _activityLog.length = 30;
+            renderActivityLog();
         }
 
-        setInterval(() => fetchBotActivity().catch(() => {}), 5000);
-        fetchBotActivity().catch(() => {});
+        function renderActivityLog() {
+            const container = document.getElementById('serverLogContainer');
+            if (_activityLog.length === 0) {
+                container.innerHTML = `<div class="log-entry"><div class="log-time">--:--:--</div><div class="log-action">No events yet.</div></div>`;
+                return;
+            }
+            container.innerHTML = _activityLog.map(e =>
+                `<div class="log-entry"><div class="log-time">${e.time}</div><div class="log-action">${escapeHtml(e.msg)}</div></div>`
+            ).join('');
+        }
     </script>
 </body>
 </html>

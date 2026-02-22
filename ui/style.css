@@ -275,6 +275,20 @@ h1 {
 
 .instruction-button:hover { background: #a0866f; }
 
+.instruction-button-override {
+    width: 100%;
+    background: rgba(251,146,60,0.3);
+    border: 2px solid #f59e0b;
+    color: #f59e0b;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+}
+
+.instruction-button-override:hover { background: rgba(251,146,60,0.5); }
+
 .instruction-button-stop {
     width: 100%;
     background: rgba(239,68,68,0.3);
@@ -291,6 +305,7 @@ h1 {
 
 .button-row { display: flex; gap: 10px; }
 .button-row .instruction-button,
+.button-row .instruction-button-override,
 .button-row .instruction-button-stop { width: auto; flex: 1; }
 
 .extra-fields { display: none; flex-direction: column; gap: 8px; margin-bottom: 10px; }
@@ -389,3 +404,59 @@ h1 {
 
 #apiToast.error   { border-color: #ef4444; color: #ef4444; }
 #apiToast.success { border-color: #22c55e; color: #22c55e; }
+
+/* ── Conversations ─────────────────────────────────────────────────────────── */
+
+.convo-turn {
+    border: 2px solid #8b7355;
+    margin-bottom: 10px;
+    background: rgba(0,0,0,0.25);
+}
+
+.convo-summary {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #c0c0c0;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.convo-summary::-webkit-details-marker { display: none; }
+.convo-summary::before { content: '▶'; font-size: 0.7em; color: #8b7355; transition: transform 0.15s; }
+details[open] > .convo-summary::before { transform: rotate(90deg); }
+
+.convo-body { padding: 0 12px 12px 12px; }
+
+.convo-part { margin-top: 8px; border: 1px solid #444; }
+
+.convo-part-label {
+    padding: 6px 10px;
+    font-size: 0.85em;
+    font-weight: bold;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.convo-part-label::-webkit-details-marker { display: none; }
+
+.convo-system { background: rgba(139,115,85,0.25); color: #c0a060; }
+.convo-human  { background: rgba(34,197,94,0.12);  color: #22c55e; }
+.convo-ai     { background: rgba(124,58,237,0.15); color: #a78bfa; }
+
+.convo-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.78em;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #d0d0d0;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.35);
+    max-height: 320px;
+    overflow-y: auto;
+    line-height: 1.5;
+}

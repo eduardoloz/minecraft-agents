@@ -655,6 +655,20 @@
     </div>
     </div>
 
+    <!-- Server Activity Log -->
+    <div class="section" id="serverLogSection" style="max-width:1400px;margin:20px auto;">
+        <div class="section-title">📡 Server Activity</div>
+        <div class="section" style="margin-top:10px; padding:15px;">
+            <div style="color:#a0a0a0; margin-bottom:8px;">Recent bot join/leave messages from server log</div>
+            <div id="serverLogContainer">
+                <div class="log-entry">
+                    <div class="log-time">--:--:--</div>
+                    <div class="log-action">No events recorded yet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Detail Modal -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
@@ -767,6 +781,9 @@
                     openModal(this);
                 });
             });
+            // start polling server activity log
+            try { fetchBotActivity(); } catch (e) { /* ignore */ }
+            setInterval(() => { try { fetchBotActivity(); } catch (e) { } }, 3000);
         });
 
         function openModal(cardElement) {
@@ -873,4 +890,66 @@
                 sendInstruction();
             }
         });
+
+        // Fetch bot activity JSON written by the backend/checkpoint and render
+        async function fetchBotActivity() {
+            const container = document.getElementById('serverLogContainer');
+            // try checkpoint JSON first
+            const paths = [
+                '/ckpt/activity/bot_activity.json', // if served from root
+                'ckpt/activity/bot_activity.json',  // if served from same dir
+                '/server-setup/data/logs/latest.log' // fallback to raw server log
+            ];
+
+            let events = null;
+
+            for (const p of paths) {
+                try {
+                    const res = await fetch(p, { cache: 'no-store' });
+                    if (!res.ok) continue;
+                    if (p.endsWith('.json')) {
+                        events = await res.json();
+                    } else {
+                        const text = await res.text();
+                        // parse lines for joined/left containing 'bot' or any name
+                        const lines = text.split('\n').reverse();
+                        events = lines.map(l => ({ type: 'line', time: Date.now() / 1000, line: l }));
+                    }
+                    break;
+                } catch (e) {
+                    // try next path
+                }
+            }
+
+            container.innerHTML = '';
+            if (!events || events.length === 0) {
+                container.innerHTML = `<div class="log-entry"><div class="log-time">--:--:--</div><div class="log-action">No events available.</div></div>`;
+                return;
+            }
+
+            // events may be an array of objects with {type,time,line} or similar
+            const slice = Array.isArray(events) ? events.slice(-30) : [];
+            slice.reverse();
+            slice.forEach(ev => {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                const ts = ev.time ? new Date(ev.time * 1000) : new Date();
+                const timeStr = ts.toLocaleTimeString();
+                const text = ev.line || (ev.type ? JSON.stringify(ev) : String(ev));
+                let action = text;
+                // try to simplify common patterns
+                if (typeof text === 'string') {
+                    if (/joined the game/.test(text)) action = text.match(/.*joined the game.*/)[0];
+                    if (/left the game/.test(text)) action = text.match(/.*left the game.*/)[0];
+                    if (/lost connection/.test(text)) action = text.match(/.*lost connection.*/)[0];
+                }
+                entry.innerHTML = `<div class="log-time">${timeStr}</div><div class="log-action">${escapeHtml(action)}</div>`;
+                container.appendChild(entry);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
     </script>

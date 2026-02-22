@@ -1,4 +1,5 @@
 import time
+import os
 
 from .file_utils import *
 from .json_utils import *
@@ -102,3 +103,84 @@ class EventRecorder:
         ]
         if self.position_history[-1] != position:
             self.position_history.append(position)
+
+
+class BotActivityRecorder:
+    """Simple recorder that parses the Minecraft server log for a particular bot's
+    join/leave events.
+
+    The class maintains an in-memory list of events and can persist them as JSON
+    under a checkpoint directory.  It is intentionally lightweight for the
+    current requirement and only looks for the strings ``"<name> joined the
+    game"`` and ``"<name> left the game"`` (or ``"lost connection"``).
+
+    Example::
+
+        recorder = BotActivityRecorder()
+        recorder.scan_log("bot")                    # scan entire file once
+        # or repeatedly call scan_log() in a loop to tail
+    """
+
+    def __init__(
+        self,
+        log_path="server-setup/data/logs/latest.log",
+        ckpt_dir="ckpt",
+        bot_name=None,
+    ):
+        self.logger = get_logger("BotActivityRecorder")
+        self.log_path = log_path
+        self.ckpt_dir = ckpt_dir
+        self.bot_name = bot_name
+        # events will be a list of dicts with keys: time, type, raw_line
+        self.events = []
+        # track file offset so we only read new lines during a tail
+        self._offset = 0
+        f_mkdir(self.ckpt_dir, "activity")
+        if self.bot_name:
+            # perform initial scan if bot name was provided
+            self.scan_log(self.bot_name)
+
+    def _parse_line(self, line: str, bot_name: str):
+        # normalize whitespace
+        text = line.strip()
+        if f"{bot_name} joined the game" in text:
+            return {"type": "join", "time": time.time(), "line": text}
+        if f"{bot_name} left the game" in text or f"{bot_name} lost connection" in text:
+            return {"type": "leave", "time": time.time(), "line": text}
+        return None
+
+    def scan_log(self, bot_name: str = None):
+        """Scan the log file from the last read position for matching events.
+
+        If ``bot_name`` is provided it overrides the one stored on the instance.
+        """
+        if bot_name:
+            self.bot_name = bot_name
+        if not self.bot_name:
+            raise ValueError("bot_name must be set before scanning log")
+
+        try:
+            with open(self.log_path, "r", encoding="utf-8", errors="ignore") as f:
+                f.seek(self._offset)
+                for line in f:
+                    evt = self._parse_line(line, self.bot_name)
+                    if evt is not None:
+                        self.events.append(evt)
+                self._offset = f.tell()
+        except FileNotFoundError:
+            self.logger.error(f"Log file not found: {self.log_path}")
+            return []
+
+        # write out the activity so far
+        dump_json(self.events, f_join(self.ckpt_dir, "activity", "bot_activity.json"))
+        return self.events
+
+    def reset(self):
+        """Clear recorded events and reset offset."""
+        self.events = []
+        self._offset = 0
+        activity_file = f_join(self.ckpt_dir, "activity", "bot_activity.json")
+        try:
+            os.remove(activity_file)
+        except Exception:
+            pass

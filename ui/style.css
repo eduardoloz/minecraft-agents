@@ -1,0 +1,310 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    background: #1a1a1a url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect fill="%232d2d2d" width="40" height="40"/><rect fill="%231a1a1a" width="20" height="20"/><rect fill="%231a1a1a" x="20" y="20" width="20" height="20"/></svg>');
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container { max-width: 1400px; margin: 0 auto; }
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    border-bottom: 2px solid #c0c0c0;
+    background: rgba(0,0,0,0.3);
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #c0c0c0;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+}
+
+.subtitle { color: #a0a0a0; font-size: 0.95em; }
+
+.api-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8em;
+    color: #a0a0a0;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.api-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ef4444;
+    flex-shrink: 0;
+}
+
+.api-dot.online {
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+}
+
+.stats-bar {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    background: rgba(101,84,192,0.2);
+    border: 2px solid #9966cc;
+    padding: 15px 25px;
+    text-align: center;
+}
+
+.stat-number { font-size: 1.8em; font-weight: bold; color: #c0c0c0; }
+.stat-label { color: #a0a0a0; font-size: 0.85em; margin-top: 5px; }
+
+.section {
+    background: rgba(0,0,0,0.4);
+    border: 3px solid #8b7355;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #c0c0c0;
+    color: #c0c0c0;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+}
+
+.cards { display: flex; flex-direction: column; gap: 15px; }
+
+.card {
+    background: rgba(0,0,0,0.3);
+    border: 2px solid #8b7355;
+    padding: 15px;
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
+    border-color: #c0c0c0;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.player-name { font-weight: bold; font-size: 1.1em; }
+
+.bot-badge {
+    display: inline-block;
+    background: rgba(124,58,237,0.2);
+    border: 1px solid #7c3aed;
+    color: #a78bfa;
+    padding: 3px 8px;
+    font-size: 0.75em;
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+.status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.status.online  { background: rgba(34,197,94,0.2);  color: #22c55e; border: 1px solid #22c55e; }
+.status.idle    { background: rgba(251,191,36,0.2); color: #fbbf24; border: 1px solid #fbbf24; }
+.status.offline { background: rgba(239,68,68,0.2);  color: #ef4444; border: 1px solid #ef4444; }
+
+.card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    font-size: 0.9em;
+    color: #a0a0a0;
+}
+
+.stat-item { display: flex; justify-content: space-between; padding: 5px 0; }
+.stat-value { color: #00d4ff; font-weight: bold; }
+
+.live-bot-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 0.8em;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    border: 2px solid;
+    cursor: pointer;
+    font-weight: bold;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-select { border-color: #22c55e; color: #22c55e; }
+.btn-select:hover { background: rgba(34,197,94,0.2); }
+.btn-stop   { border-color: #fbbf24; color: #fbbf24; }
+.btn-stop:hover { background: rgba(251,191,36,0.2); }
+.btn-kill   { border-color: #ef4444; color: #ef4444; }
+.btn-kill:hover { background: rgba(239,68,68,0.2); }
+
+.instruction-window {
+    background: rgba(0,0,0,0.5);
+    border: 3px solid #8b7355;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.instruction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #c0c0c0;
+}
+
+.instruction-title { font-size: 1.1em; font-weight: bold; color: #c0c0c0; }
+.instruction-target { font-size: 0.85em; color: #a0a0a0; }
+
+.command-type-select {
+    background: rgba(0,0,0,0.4);
+    border: 2px solid #8b7355;
+    color: #fff;
+    padding: 4px 8px;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.command-type-select:focus { outline: none; border-color: #c0c0c0; }
+
+.instruction-input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid #8b7355;
+    color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.instruction-input::placeholder { color: #666; }
+.instruction-input:focus { outline: none; border-color: #c0c0c0; box-shadow: 0 0 10px rgba(192,192,192,0.3); }
+
+.instruction-button {
+    width: 100%;
+    background: #8b7355;
+    border: 2px solid #5a4a3a;
+    color: #fff;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+}
+
+.instruction-button:hover { background: #a0866f; }
+
+.instruction-button-stop {
+    width: 100%;
+    background: rgba(239,68,68,0.3);
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+}
+
+.instruction-button-stop:hover { background: rgba(239,68,68,0.5); }
+
+.button-row { display: flex; gap: 10px; }
+.button-row .instruction-button,
+.button-row .instruction-button-stop { width: auto; flex: 1; }
+
+.extra-fields { display: none; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.extra-fields.visible { display: flex; }
+.extra-fields label { color: #a0a0a0; font-size: 0.85em; margin-bottom: 2px; }
+
+.extra-fields input[type="text"] {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid #8b7355;
+    color: #fff;
+    padding: 8px;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+}
+
+.extra-fields input[type="text"]:focus { outline: none; border-color: #c0c0c0; }
+.extra-fields input[type="checkbox"] { margin-right: 6px; }
+
+.spawn-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.spawn-form-group { display: flex; flex-direction: column; gap: 4px; }
+.spawn-form-group label { color: #a0a0a0; font-size: 0.8em; }
+
+.spawn-form-group input,
+.spawn-form-group select {
+    background: rgba(0,0,0,0.3);
+    border: 2px solid #8b7355;
+    color: #fff;
+    padding: 8px;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    font-size: 0.9em;
+}
+
+.spawn-form-group input:focus,
+.spawn-form-group select:focus { outline: none; border-color: #c0c0c0; }
+
+.log-entry {
+    background: rgba(0,0,0,0.3);
+    border-left: 4px solid #8b7355;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.log-time { color: #c0c0c0; font-weight: bold; font-size: 0.85em; }
+.log-action { color: #fff; margin-top: 5px; }
+
+#apiToast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(0,0,0,0.9);
+    border: 2px solid #8b7355;
+    color: #fff;
+    padding: 12px 18px;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    font-size: 0.9em;
+    z-index: 9999;
+    max-width: 320px;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+#apiToast.error   { border-color: #ef4444; color: #ef4444; }
+#apiToast.success { border-color: #22c55e; color: #22c55e; }

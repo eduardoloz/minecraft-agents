@@ -6,871 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft Agents Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            background: #1a1a1a url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect fill="%232d2d2d" width="40" height="40"/><rect fill="%231a1a1a" width="20" height="20"/><rect fill="%231a1a1a" x="20" y="20" width="20" height="20"/></svg>');
-            color: #fff;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            border-bottom: 2px solid #c0c0c0;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            color: #c0c0c0;
-            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
-        }
-
-        .subtitle {
-            color: #a0a0a0;
-            font-size: 0.95em;
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 40px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .stat-box {
-            background: rgba(101, 84, 192, 0.2);
-            border: 2px solid #9966cc;
-            padding: 15px 25px;
-            border-radius: 0px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #c0c0c0;
-        }
-
-        .stat-label {
-            color: #a0a0a0;
-            font-size: 0.85em;
-            margin-top: 5px;
-        }
-
-        .sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 1024px) {
-            .sections {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .section {
-            background: rgba(0, 0, 0, 0.4);
-            border: 3px solid #8b7355;
-            border-radius: 0px;
-            padding: 25px;
-        }
-
-        .section-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #c0c0c0;
-            color: #c0c0c0;
-            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
-        }
-
-        .cards {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid #8b7355;
-            border-radius: 0px;
-            padding: 15px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-            border-color: #c0c0c0;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .player-name {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-
-        .status.online {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 1px solid #22c55e;
-        }
-
-        .status.idle {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid #fbbf24;
-        }
-
-        .status.offline {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-        }
-
-        .status.mining {
-            background: rgba(139, 115, 85, 0.3);
-            color: #c0c0c0;
-            border: 1px solid #c0c0c0;
-        }
-
-        .status.crafting {
-            background: rgba(168, 85, 247, 0.2);
-            color: #a855f7;
-            border: 1px solid #a855f7;
-        }
-
-        .card-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            font-size: 0.9em;
-            color: #a0a0a0;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-        }
-
-        .stat-value {
-            color: #00d4ff;
-            font-weight: bold;
-        }
-
-        /* Minecraft hearts (replaces health-bar) */
-        .hearts-container {
-            display: flex;
-            gap: 2px;
-            align-items: center;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
-        .heart-sprite {
-            width: 18px;
-            height: 18px;
-            background-image: url('assets/hearts/hearts_sprite_sheet.png');
-            background-size: 54px 18px;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-
-        .heart-sprite.full {
-            background-position: 0 0;
-        }
-
-        .heart-sprite.half {
-            background-position: -18px 0;
-        }
-
-        .heart-sprite.empty {
-            background-position: -36px 0;
-        }
-
-        .bot-badge {
-            display: inline-block;
-            background: rgba(124, 58, 237, 0.2);
-            border: 1px solid #7c3aed;
-            color: #a78bfa;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.75em;
-            margin-left: 8px;
-            font-weight: bold;
-        }
-
-        /* Instruction Window */
-        .instruction-window {
-            background: rgba(0, 0, 0, 0.5);
-            border: 3px solid #8b7355;
-            border-radius: 0px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .instruction-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #c0c0c0;
-        }
-
-        .instruction-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #c0c0c0;
-        }
-
-        .instruction-target {
-            font-size: 0.85em;
-            color: #a0a0a0;
-        }
-
-        .instruction-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid #8b7355;
-            color: #fff;
-            padding: 10px;
-            border-radius: 0px;
-            margin-bottom: 10px;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .instruction-input::placeholder {
-            color: #666;
-        }
-
-        .instruction-input:focus {
-            outline: none;
-            border-color: #c0c0c0;
-            box-shadow: 0 0 10px rgba(192, 192, 192, 0.3);
-        }
-
-        .instruction-button {
-            width: 100%;
-            background: #8b7355;
-            border: 2px solid #5a4a3a;
-            color: #fff;
-            padding: 10px;
-            border-radius: 0px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-        }
-
-        .instruction-button:hover {
-            background: #a0866f;
-            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
-        }
-
-        .instruction-button:active {
-            background: #7a6a4f;
-        }
-
-        /* Detail Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 4px solid #8b7355;
-            border-radius: 0px;
-            padding: 30px;
-            max-width: 1100px;
-            width: 95%;
-            max-height: 85vh;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .modal-detail-panel {
-            flex: 1;
-            min-width: 320px;
-            max-width: 480px;
-            overflow-y: auto;
-        }
-
-        .modal-inventory-panel {
-            flex: 0 0 auto;
-            min-width: 450px;
-            overflow-y: auto;
-        }
-
-        @media (max-width: 1000px) {
-            .modal {
-                flex-direction: column;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-            .modal-detail-panel {
-                max-width: none;
-            }
-            .modal-inventory-panel {
-                min-width: 100%;
-            }
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #8b7355;
-            border: 2px solid #5a4a3a;
-            color: #fff;
-            font-size: 28px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-        }
-
-        .modal-close:hover {
-            background: #a0866f;
-        }
-
-        .modal-header {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #c0c0c0;
-            position: relative;
-        }
-
-        /* Paper doll (Minecraft-style avatar) - above inventory on right */
-        .paperdoll-panel-wrapper {
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #8b7355;
-        }
-
-        .paperdoll-panel {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .skin-preview-wrap {
-            position: relative;
-            width: 240px;
-            height: 336px;
-        }
-
-        .skin-preview-wrap.is-animated {
-            animation: paperdoll-idle 2.5s ease-in-out infinite;
-        }
-
-        @keyframes paperdoll-idle {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-3px) rotate(0.3deg); }
-        }
-
-        .skin-preview {
-            width: 240px;
-            height: 336px;
-            min-width: 240px;
-            min-height: 336px;
-            border: 3px solid #8b7355;
-            background: rgba(0, 0, 0, 0.4);
-            background-image:
-                linear-gradient(45deg, #585858 25%, transparent 25%),
-                linear-gradient(-45deg, #585858 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #585858 75%),
-                linear-gradient(-45deg, transparent 75%, #585858 75%);
-            background-size: 8px 8px;
-            background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            object-fit: contain;
-            display: block;
-        }
-
-        .skin-preview-placeholder {
-            width: 240px;
-            height: 336px;
-            min-width: 240px;
-            min-height: 336px;
-            border: 3px solid #8b7355;
-            background: rgba(0, 0, 0, 0.4);
-            background-image:
-                linear-gradient(45deg, #585858 25%, transparent 25%),
-                linear-gradient(-45deg, #585858 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #585858 75%),
-                linear-gradient(-45deg, transparent 75%, #585858 75%);
-            background-size: 8px 8px;
-            background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: #c0c0c0;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .armor-column {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .hand-row {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
-        }
-
-        .mc-slot {
-            width: 44px;
-            height: 44px;
-            background: rgba(0, 0, 0, 0.35);
-            border: 2px solid #8b7355;
-            box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-
-        .mc-slot:hover {
-            border-color: #c0c0c0;
-            background: rgba(0, 0, 0, 0.45);
-        }
-
-        .mc-slot-count {
-            position: absolute;
-            bottom: 2px;
-            right: 4px;
-            font-size: 11px;
-            color: #fff;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border: 3px solid #8b7355;
-            background: rgba(100, 100, 100, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            flex-shrink: 0;
-        }
-
-        .player-info h2 {
-            font-size: 1.5em;
-            margin-bottom: 5px;
-            color: #c0c0c0;
-        }
-
-        .player-info .status {
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-
-        .player-info-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.9em;
-            color: #a0a0a0;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .info-label {
-            color: #a0a0a0;
-        }
-
-        .info-value {
-            color: #c0c0c0;
-            font-weight: bold;
-        }
-
-        .modal-section {
-            margin-bottom: 25px;
-        }
-
-        .modal-section-title {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            color: #c0c0c0;
-            border-left: 4px solid #8b7355;
-            padding-left: 10px;
-            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
-        }
-
-        .log-entry {
-            background: rgba(0, 0, 0, 0.3);
-            border-left: 4px solid #8b7355;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 0px;
-            font-size: 0.9em;
-        }
-
-        .log-time {
-            color: #c0c0c0;
-            font-weight: bold;
-            font-size: 0.85em;
-        }
-
-        .log-action {
-            color: #fff;
-            margin-top: 5px;
-        }
-
-        .log-status {
-            color: #a0a0a0;
-            font-size: 0.85em;
-            margin-top: 5px;
-        }
-
-        .log-status.success {
-            color: #22c55e;
-        }
-
-        .log-status.warning {
-            color: #fbbf24;
-        }
-
-        .log-status.error {
-            color: #ef4444;
-        }
-
-        .inventory-label {
-            font-size: 0.8em;
-            color: #a0a0a0;
-            margin-bottom: 6px;
-        }
-
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(9, 44px);
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        .inventory-slot {
-            width: 44px;
-            height: 44px;
-            background: rgba(0, 0, 0, 0.35);
-            border: 2px solid #8b7355;
-            box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            font-size: 24px;
-        }
-
-        .inventory-slot:hover {
-            border-color: #c0c0c0;
-            background: rgba(0, 0, 0, 0.45);
-        }
-
-        .inventory-slot-count {
-            position: absolute;
-            bottom: 2px;
-            right: 4px;
-            font-size: 12px;
-            color: #fff;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        /* API status dot in header */
-        .api-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.8em;
-            color: #a0a0a0;
-            justify-content: center;
-            margin-top: 8px;
-        }
-
-        .api-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ef4444;
-            flex-shrink: 0;
-        }
-
-        .api-dot.online {
-            background: #22c55e;
-            box-shadow: 0 0 6px #22c55e;
-        }
-
-        /* Command type select */
-        .command-type-select {
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid #8b7355;
-            color: #fff;
-            padding: 4px 8px;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-
-        .command-type-select:focus {
-            outline: none;
-            border-color: #c0c0c0;
-        }
-
-        /* Stop button */
-        .instruction-button-stop {
-            width: 100%;
-            background: rgba(239, 68, 68, 0.3);
-            border: 2px solid #ef4444;
-            color: #ef4444;
-            padding: 10px;
-            border-radius: 0px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-        }
-
-        .instruction-button-stop:hover {
-            background: rgba(239, 68, 68, 0.5);
-        }
-
-        .button-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .button-row .instruction-button,
-        .button-row .instruction-button-stop {
-            width: auto;
-            flex: 1;
-        }
-
-        /* Extra command fields */
-        .extra-fields {
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .extra-fields.visible {
-            display: flex;
-        }
-
-        .extra-fields label {
-            color: #a0a0a0;
-            font-size: 0.85em;
-            margin-bottom: 2px;
-        }
-
-        .extra-fields input[type="text"] {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid #8b7355;
-            color: #fff;
-            padding: 8px;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-        }
-
-        .extra-fields input[type="text"]:focus {
-            outline: none;
-            border-color: #c0c0c0;
-        }
-
-        .extra-fields input[type="checkbox"] {
-            margin-right: 6px;
-        }
-
-        /* Live bot cards */
-        .live-bot-actions {
-            display: flex;
-            gap: 6px;
-            margin-top: 10px;
-        }
-
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 0.8em;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            border: 2px solid;
-            cursor: pointer;
-            font-weight: bold;
-            background: transparent;
-            transition: all 0.2s ease;
-        }
-
-        .btn-select {
-            border-color: #22c55e;
-            color: #22c55e;
-        }
-
-        .btn-select:hover { background: rgba(34,197,94,0.2); }
-
-        .btn-stop {
-            border-color: #fbbf24;
-            color: #fbbf24;
-        }
-
-        .btn-stop:hover { background: rgba(251,191,36,0.2); }
-
-        .btn-kill {
-            border-color: #ef4444;
-            color: #ef4444;
-        }
-
-        .btn-kill:hover { background: rgba(239,68,68,0.2); }
-
-        .mock-label {
-            font-size: 0.7em;
-            color: #666;
-            margin-left: 6px;
-        }
-
-        /* Spawn bot form */
-        .spawn-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .spawn-form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .spawn-form-group label {
-            color: #a0a0a0;
-            font-size: 0.8em;
-        }
-
-        .spawn-form-group input,
-        .spawn-form-group select {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid #8b7355;
-            color: #fff;
-            padding: 8px;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            font-size: 0.9em;
-        }
-
-        .spawn-form-group input:focus,
-        .spawn-form-group select:focus {
-            outline: none;
-            border-color: #c0c0c0;
-        }
-
-        /* Toast notification */
-        #apiToast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: rgba(0,0,0,0.9);
-            border: 2px solid #8b7355;
-            color: #fff;
-            padding: 12px 18px;
-            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
-            font-size: 0.9em;
-            z-index: 9999;
-            max-width: 320px;
-            display: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        }
-
-        #apiToast.error {
-            border-color: #ef4444;
-            color: #ef4444;
-        }
-
-        #apiToast.success {
-            border-color: #22c55e;
-            color: #22c55e;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
         <header>
             <h1>⛏️ Minecraft Agents Dashboard</h1>
-            <p class="subtitle">Real-time Player & AI Bot Monitoring</p>
+            <p class="subtitle">Real-time AI Bot Monitoring</p>
             <div class="api-status">
                 <div class="api-dot" id="apiDot"></div>
                 <span id="apiStatusLabel">API Offline</span>
@@ -892,204 +35,56 @@
             </div>
         </div>
 
-    </div>
-
-    <div class="sections">
-        <!-- Players Section -->
-        <div class="section">
-            <h2 class="section-title">👥 Players</h2>
-            <div class="cards">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="player-name">Steve_Gaming</span>
-                        <span class="status online">Online</span>
-                    </div>
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span>Level:</span>
-                            <span class="stat-value">45</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Location:</span>
-                            <span class="stat-value">Taiga</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>XP:</span>
-                            <span class="stat-value">2840</span>
-                        </div>
-                    </div>
-                    <div class="hearts-container" data-health="95"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <span class="player-name">Luna_Explorer</span>
-                        <span class="status idle">Idle</span>
-                    </div>
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span>Level:</span>
-                            <span class="stat-value">38</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Location:</span>
-                            <span class="stat-value">Ocean</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>XP:</span>
-                            <span class="stat-value">1920</span>
-                        </div>
-                    </div>
-                    <div class="hearts-container" data-health="85"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <span class="player-name">Alex_Builder</span>
-                        <span class="status offline">Offline</span>
-                    </div>
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span>Level:</span>
-                            <span class="stat-value">52</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Last Seen:</span>
-                            <span class="stat-value">2h ago</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>XP:</span>
-                            <span class="stat-value">3500</span>
-                        </div>
-                    </div>
-                    <div class="hearts-container" data-health="100"></div>
-                </div>
-            </div>
-        </div>
-
         <!-- AI Bots Section -->
         <div class="section">
             <h2 class="section-title">🤖 AI Bots</h2>
-            <!-- Live API bots render here -->
-            <div id="apiBotCards" class="cards" style="margin-bottom:15px;"></div>
-            <div class="cards">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="player-name">MinerBot_01<span class="bot-badge">AI</span><span class="mock-label">(example)</span></span>
-                        <span class="status mining">Mining</span>
-                    </div>
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span>Task:</span>
-                            <span class="stat-value">Mining</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Location:</span>
-                            <span class="stat-value">Cave Y:-40</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Efficiency:</span>
-                            <span class="stat-value">94%</span>
-                        </div>
-                    </div>
-                    <div class="hearts-container" data-health="98"></div>
-                </div>
+            <div id="apiBotCards" class="cards"></div>
+        </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <span class="player-name">BuildBot_02<span class="bot-badge">AI</span><span class="mock-label">(example)</span></span>
-                        <span class="status crafting">Building</span>
-                    </div>
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span>Task:</span>
-                            <span class="stat-value">Building</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Location:</span>
-                            <span class="stat-value">Plains</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Progress:</span>
-                            <span class="stat-value">68%</span>
-                        </div>
-                    </div>
-                    <div class="hearts-container" data-health="100"></div>
+        <!-- Instruction Window -->
+        <div class="instruction-window">
+            <div class="instruction-header">
+                <div>
+                    <div class="instruction-title">📝 Send Instruction</div>
+                    <div class="instruction-target" id="targetName">Select a bot to instruct</div>
                 </div>
+                <select class="command-type-select" id="commandType" onchange="updateCommandFields()">
+                    <option value="task">Task</option>
+                    <option value="explore">Explore</option>
+                    <option value="subgoal">Subgoal</option>
+                    <option value="skill">Skill</option>
+                    <option value="stop">Stop</option>
+                </select>
+            </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <span class="player-name">FarmerBot_03<span class="bot-badge">AI</span><span class="mock-label">(example)</span></span>
-                        <span class="status online">Harvesting</span>
-                    </div>
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span>Task:</span>
-                            <span class="stat-value">Farming</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Location:</span>
-                            <span class="stat-value">Farm</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Yield:</span>
-                            <span class="stat-value">1240</span>
-                        </div>
-                    </div>
-                    <div class="hearts-container" data-health="92"></div>
-                </div>
+            <textarea id="instructionInput" class="instruction-input"
+                placeholder="Enter instruction (e.g., 'Mine 10 diamonds')"></textarea>
+
+            <div class="extra-fields" id="subgoalFields">
+                <label>Sub-goals (one per line):</label>
+                <textarea id="subGoalsInput" class="instruction-input" style="min-height:60px;"
+                    placeholder="chop oak tree&#10;collect 10 logs"></textarea>
+            </div>
+
+            <div class="extra-fields" id="skillFields">
+                <label>Skill path:</label>
+                <input type="text" id="skillPathInput" placeholder="./skill_library/craftWoodenPlanks.js">
+            </div>
+
+            <div class="extra-fields" id="stopFields">
+                <label><input type="checkbox" id="clearQueueInput"> Clear task queue</label>
+            </div>
+
+            <div class="button-row">
+                <button class="instruction-button" onclick="sendInstruction()">⚡ Send</button>
+                <button class="instruction-button-stop" onclick="stopSelectedBot()">⏹ Stop Bot</button>
             </div>
         </div>
-    </div>
 
-    <!-- Instruction Window - Below sections -->
-    <div class="instruction-window">
-        <div class="instruction-header">
-            <div>
-                <div class="instruction-title">📝 Send Instruction</div>
-                <div class="instruction-target" id="targetName">Select a bot to instruct</div>
-            </div>
-            <select class="command-type-select" id="commandType" onchange="updateCommandFields()">
-                <option value="task">Task</option>
-                <option value="explore">Explore</option>
-                <option value="subgoal">Subgoal</option>
-                <option value="skill">Skill</option>
-                <option value="stop">Stop</option>
-            </select>
-        </div>
-        <textarea id="instructionInput" class="instruction-input"
-            placeholder="Enter instruction (e.g., 'Mine 10 diamonds' or 'Find a village')"></textarea>
-
-        <!-- Subgoal extras -->
-        <div class="extra-fields" id="subgoalFields">
-            <label>Sub-goals (one per line):</label>
-            <textarea id="subGoalsInput" class="instruction-input" style="min-height:60px;"
-                placeholder="chop oak tree&#10;collect 10 logs"></textarea>
-        </div>
-
-        <!-- Skill extras -->
-        <div class="extra-fields" id="skillFields">
-            <label>Skill path:</label>
-            <input type="text" id="skillPathInput" placeholder="./skill_library/craftWoodenPlanks.js">
-        </div>
-
-        <!-- Stop extras -->
-        <div class="extra-fields" id="stopFields">
-            <label><input type="checkbox" id="clearQueueInput"> Clear task queue</label>
-        </div>
-
-        <div class="button-row">
-            <button class="instruction-button" onclick="sendInstruction()">⚡ Send</button>
-            <button class="instruction-button-stop" onclick="stopSelectedBot()">⏹ Stop Bot</button>
-        </div>
-    </div>
-    </div>
-
-    <!-- Server Activity Log -->
-    <div class="section" id="serverLogSection" style="max-width:1400px;margin:20px auto;">
-        <div class="section-title">📡 Server Activity</div>
-        <div class="section" style="margin-top:10px; padding:15px;">
-            <div style="color:#a0a0a0; margin-bottom:8px;">Recent bot join/leave messages from server log</div>
+        <!-- Server Activity Log -->
+        <div class="section">
+            <div class="section-title">📡 Server Activity</div>
+            <div style="color:#a0a0a0; margin-bottom:8px; font-size:0.85em;">Recent bot join/leave messages</div>
             <div id="serverLogContainer">
                 <div class="log-entry">
                     <div class="log-time">--:--:--</div>
@@ -1097,550 +92,59 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Spawn Bot Section -->
-    <div class="section" style="max-width:1400px;margin:20px auto;">
-        <div class="section-title">⚡ Spawn Bot</div>
-        <div class="spawn-form">
-            <div class="spawn-form-group">
-                <label>Bot Name *</label>
-                <input type="text" id="spawnName" placeholder="bot1">
+        <!-- Spawn Bot -->
+        <div class="section">
+            <div class="section-title">⚡ Spawn Bot</div>
+            <div class="spawn-form">
+                <div class="spawn-form-group">
+                    <label>Bot Name *</label>
+                    <input type="text" id="spawnName" placeholder="bot1">
+                </div>
+                <div class="spawn-form-group">
+                    <label>MC Port *</label>
+                    <input type="text" id="spawnPort" placeholder="3000">
+                </div>
+                <div class="spawn-form-group">
+                    <label>Username</label>
+                    <input type="text" id="spawnUsername" placeholder="Steve">
+                </div>
+                <div class="spawn-form-group">
+                    <label>Environment</label>
+                    <select id="spawnEnvironment">
+                        <option value="">Default</option>
+                        <option value="explore">Explore</option>
+                        <option value="combat">Combat</option>
+                        <option value="farming">Farming</option>
+                        <option value="subgoal">Subgoal</option>
+                    </select>
+                </div>
+                <div class="spawn-form-group">
+                    <label>Model</label>
+                    <select id="spawnModel">
+                        <option value="">Default</option>
+                        <option value="llama3_8b_v3">llama3_8b_v3</option>
+                        <option value="llama3_8b">llama3_8b</option>
+                        <option value="llama3_70b_v1">llama3_70b_v1</option>
+                        <option value="qwen2-7b">qwen2-7b</option>
+                        <option value="qwen2-72b">qwen2-72b</option>
+                    </select>
+                </div>
             </div>
-            <div class="spawn-form-group">
-                <label>MC Port *</label>
-                <input type="text" id="spawnPort" placeholder="3000">
-            </div>
-            <div class="spawn-form-group">
-                <label>Username</label>
-                <input type="text" id="spawnUsername" placeholder="Steve">
-            </div>
-            <div class="spawn-form-group">
-                <label>Environment</label>
-                <select id="spawnEnvironment">
-                    <option value="">Default</option>
-                    <option value="explore">Explore</option>
-                    <option value="combat">Combat</option>
-                    <option value="farming">Farming</option>
-                    <option value="subgoal">Subgoal</option>
-                </select>
-            </div>
-            <div class="spawn-form-group">
-                <label>Model</label>
-                <select id="spawnModel">
-                    <option value="">Default</option>
-                    <option value="llama3_8b_v3">llama3_8b_v3</option>
-                    <option value="llama3_8b">llama3_8b</option>
-                    <option value="llama3_70b_v1">llama3_70b_v1</option>
-                    <option value="qwen2-7b">qwen2-7b</option>
-                    <option value="qwen2-72b">qwen2-72b</option>
-                </select>
-            </div>
+            <button class="instruction-button" onclick="spawnBot()">⚡ Spawn Bot</button>
         </div>
-        <button class="instruction-button" onclick="spawnBot()">⚡ Spawn Bot</button>
     </div>
 
-    <!-- Toast -->
     <div id="apiToast"></div>
-
-    <!-- Detail Modal -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
-        <div class="modal" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeModal()">✕</button>
-
-            <!-- Detail Panel (left) -->
-            <div class="modal-detail-panel">
-            <!-- Modal Header (name + status + info) -->
-            <div class="modal-header">
-                <div class="player-info">
-                    <h2><span id="modalAvatar"></span> <span id="modalName">Player Name</span></h2>
-                    <span class="status online" id="modalStatus">Online</span>
-                    <div class="player-info-row">
-                        <div class="info-item">
-                            <span class="info-label">Level:</span>
-                            <span class="info-value" id="modalLevel">--</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Type:</span>
-                            <span class="info-value" id="modalType">--</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Location:</span>
-                            <span class="info-value" id="modalLocation">--</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Health:</span>
-                            <span class="info-value" id="modalHealth">--</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats Section -->
-            <div class="modal-section">
-                <div class="modal-section-title">📊 Statistics</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                    <div>
-                        <div style="color: #a0a0a0; font-size: 0.9em;">Experience</div>
-                        <div style="color: #00d4ff; font-size: 1.3em; font-weight: bold;" id="modalXP">0</div>
-                    </div>
-                    <div>
-                        <div style="color: #a0a0a0; font-size: 0.9em;">Tasks Completed</div>
-                        <div style="color: #00d4ff; font-size: 1.3em; font-weight: bold;" id="modalTasks">0</div>
-                    </div>
-                    <div>
-                        <div style="color: #a0a0a0; font-size: 0.9em;">Uptime</div>
-                        <div style="color: #00d4ff; font-size: 1.3em; font-weight: bold;" id="modalUptime">0h</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Log Section -->
-            <div class="modal-section">
-                <div class="modal-section-title">📜 Action Log</div>
-                <div id="actionLog">
-                    <div class="log-entry">
-                        <div class="log-time">14:32:45</div>
-                        <div class="log-action">Started mining operation</div>
-                        <div class="log-status success">✓ Success</div>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-            <!-- Inventory Panel (right) - paper doll above inventory -->
-            <div class="modal-inventory-panel">
-            <!-- Paper doll (skin + armor) - above inventory -->
-            <div class="paperdoll-panel-wrapper">
-                <div class="paperdoll-panel">
-                    <div class="skin-preview-wrap" id="skinPreviewWrap">
-                        <img class="skin-preview" id="skinPreview" alt="" style="display:none;">
-                        <div class="skin-preview-placeholder" id="skinPreviewPlaceholder">??</div>
-                    </div>
-                    <div>
-                        <div class="armor-column">
-                            <div class="mc-slot" id="armorHelmetSlot" title="Helmet"></div>
-                            <div class="mc-slot" id="armorChestSlot" title="Chestplate"></div>
-                            <div class="mc-slot" id="armorLegsSlot" title="Leggings"></div>
-                            <div class="mc-slot" id="armorBootsSlot" title="Boots"></div>
-                        </div>
-                        <div class="hand-row">
-                            <div class="mc-slot" id="mainHandSlot" title="Main hand"></div>
-                            <div class="mc-slot" id="offHandSlot" title="Off hand"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                <div class="modal-section-title">🎒 Inventory</div>
-                <div class="inventory-label">Inventory</div>
-                <div class="inventory-grid" id="modalInventoryMainGrid"></div>
-                <div class="inventory-label">Hotbar</div>
-                <div class="inventory-grid" id="modalInventoryHotbarGrid"></div>
-            </div>
-        </div>
-    </div>
 
     <script>
         const API_BASE = 'http://localhost:8001';
         let selectedBot = null;
 
-        // Per-entity inventories (explicit entries)
-        const inventoriesByName = {
-            "Steve_Gaming": [
-                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
-                { id: "dirt", name: "Dirt", icon: "🟫", count: 32 },
-                { id: "oak_log", name: "Oak Log", icon: "🪵", count: 16 },
-                { id: "planks", name: "Oak Planks", icon: "🪵", count: 64 },
-                { id: "sticks", name: "Stick", icon: "〰️", count: 32 },
-                { id: "coal", name: "Coal", icon: "⚫", count: 16 },
-                { id: "iron_ingot", name: "Iron Ingot", icon: "⛓️", count: 12 },
-                null, null, { id: "torch", name: "Torch", icon: "🔥", count: 16 },
-                { id: "crafting_table", name: "Crafting Table", icon: "🪵", count: 1 },
-                { id: "furnace", name: "Furnace", icon: "⬛", count: 1 },
-                null, null, null,
-                { id: "iron_pickaxe", name: "Iron Pickaxe", icon: "⛏️", count: 1 },
-                { id: "stone_axe", name: "Stone Axe", icon: "🪓", count: 1 },
-                { id: "shovel", name: "Shovel", icon: "🛠️", count: 1 },
-                { id: "sword", name: "Iron Sword", icon: "🗡️", count: 1 },
-                null, null, null, null, null, null, null, null,
-                { id: "bread", name: "Bread", icon: "🍞", count: 8 },
-                { id: "steak", name: "Steak", icon: "🥩", count: 4 },
-                { id: "apple", name: "Apple", icon: "🍎", count: 16 },
-                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 6 },
-                { id: "anvil", name: "Anvil", icon: "⚒️", count: 1 },
-                null, null, null, null
-            ]
-        };
-
-        // Templates for entities without explicit inventory (Miner/Builder/Farmer/Explorer)
-        const inventoryTemplates = {
-            miner: [
-                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
-                { id: "coal", name: "Coal", icon: "⚫", count: 32 },
-                { id: "iron_ingot", name: "Iron Ingot", icon: "⛓️", count: 8 },
-                { id: "torch", name: "Torch", icon: "🔥", count: 16 },
-                null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                { id: "iron_pickaxe", name: "Iron Pickaxe", icon: "⛏️", count: 1 },
-                { id: "torch", name: "Torch", icon: "🔥", count: 16 },
-                { id: "bread", name: "Bread", icon: "🍞", count: 8 },
-                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
-                null, null, null, null, null
-            ],
-            builder: [
-                { id: "planks", name: "Oak Planks", icon: "🪵", count: 64 },
-                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
-                { id: "sticks", name: "Stick", icon: "〰️", count: 32 },
-                { id: "crafting_table", name: "Crafting Table", icon: "🪵", count: 1 },
-                null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                { id: "stone_axe", name: "Stone Axe", icon: "🪓", count: 1 },
-                { id: "shovel", name: "Shovel", icon: "🛠️", count: 1 },
-                { id: "planks", name: "Oak Planks", icon: "🪵", count: 64 },
-                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 32 },
-                null, null, null, null, null
-            ],
-            farmer: [
-                { id: "wheat_seeds", name: "Wheat Seeds", icon: "🌾", count: 64 },
-                { id: "wheat", name: "Wheat", icon: "🌾", count: 48 },
-                { id: "bread", name: "Bread", icon: "🍞", count: 32 },
-                { id: "carrot", name: "Carrot", icon: "🥕", count: 16 },
-                null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                { id: "stone_hoe", name: "Stone Hoe", icon: "🛠️", count: 1 },
-                { id: "bread", name: "Bread", icon: "🍞", count: 8 },
-                { id: "wheat_seeds", name: "Wheat Seeds", icon: "🌾", count: 64 },
-                null, null, null, null, null, null
-            ],
-            explorer: [
-                { id: "map", name: "Map", icon: "🗺️", count: 1 },
-                { id: "compass", name: "Compass", icon: "🧭", count: 1 },
-                { id: "torch", name: "Torch", icon: "🔥", count: 32 },
-                { id: "boat", name: "Boat", icon: "🛶", count: 1 },
-                null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                { id: "iron_sword", name: "Iron Sword", icon: "🗡️", count: 1 },
-                { id: "torch", name: "Torch", icon: "🔥", count: 16 },
-                { id: "bread", name: "Bread", icon: "🍞", count: 16 },
-                { id: "apple", name: "Apple", icon: "🍎", count: 8 },
-                null, null, null, null, null
-            ]
-        };
-
-        function getTemplateForEntity(playerName, status) {
-            const s = (playerName + status).toLowerCase();
-            if (/miner|mining/i.test(playerName) || /mining/i.test(status)) return "miner";
-            if (/builder|build|building/i.test(playerName) || /building|crafting/i.test(status)) return "builder";
-            if (/farmer|farm|harvest/i.test(playerName) || /farm|harvest/i.test(status)) return "farmer";
-            if (/explorer|explore|ocean|idle/i.test(playerName) || /ocean|idle/i.test(status)) return "explorer";
-            return "explorer";
-        }
-
-        function simpleHash(str) {
-            let h = 0;
-            for (let i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i) | 0;
-            return Math.abs(h);
-        }
-
-        function generateInventoryFromTemplate(playerName, status) {
-            const template = inventoryTemplates[getTemplateForEntity(playerName, status)] || inventoryTemplates.explorer;
-            const seed = simpleHash(playerName);
-            return template.map((item, i) => {
-                if (!item) return null;
-                const variation = (seed + i * 7) % 100;
-                const count = item.count > 1 ? Math.max(1, item.count - (variation % 20) + 5) : 1;
-                return { ...item, count };
-            });
-        }
-
-        function getInventoryForEntity(playerName, status) {
-            if (inventoriesByName[playerName]) return inventoriesByName[playerName];
-            return generateInventoryFromTemplate(playerName, status);
-        }
-
-        function renderInventoryFor(playerName, status) {
-            const arr = getInventoryForEntity(playerName, status);
-            const mainGrid = document.getElementById('modalInventoryMainGrid');
-            const hotbarGrid = document.getElementById('modalInventoryHotbarGrid');
-            mainGrid.innerHTML = '';
-            hotbarGrid.innerHTML = '';
-            for (let i = 0; i < 27; i++) mainGrid.appendChild(createInventorySlot(arr[i]));
-            for (let i = 27; i < 36; i++) hotbarGrid.appendChild(createInventorySlot(arr[i]));
-        }
-
-        function createInventorySlot(item) {
-            const slot = document.createElement('div');
-            slot.className = 'inventory-slot';
-            if (item) {
-                slot.innerHTML = item.icon + (item.count > 1 ? '<span class="inventory-slot-count">' + item.count + '</span>' : '');
-            }
-            return slot;
-        }
-
-        // Paper doll / avatar appearance (per entity)
-        // Mineatar front body (front-facing): https://api.mineatar.io/body/front/{uuid}?scale=10
-        const STEVE_UUID = "8667ba71-b85a-4004-af54-45757d09821c";
-        const ALEX_UUID = "069a79f444e94726a5befca90e38aaf5";
-        const skinUrl = (uuid) => `https://api.mineatar.io/body/front/${uuid}?scale=10`;
-        const appearanceByName = {
-            "Steve_Gaming": {
-                skin: [skinUrl(STEVE_UUID), "assets/skins/steve.png"],
-                armor: { helmet: "⛑️", chest: "🧥", legs: "👖", boots: "🥾" },
-                mainhand: { icon: "⛏️", count: 1 },
-                offhand: { icon: "🛡️", count: 1 }
-            },
-            "Luna_Explorer": {
-                skin: [skinUrl(ALEX_UUID)],
-                armor: { helmet: null, chest: null, legs: null, boots: null },
-                mainhand: { icon: "🗺️", count: 1 },
-                offhand: { icon: "🗡️", count: 1 }
-            },
-            "Alex_Builder": {
-                skin: [skinUrl(ALEX_UUID)],
-                armor: { helmet: null, chest: null, legs: null, boots: null },
-                mainhand: { icon: "🪓", count: 1 },
-                offhand: { icon: "🪵", count: 64 }
-            },
-            "MinerBot_01": {
-                skin: [skinUrl(STEVE_UUID)],
-                armor: { helmet: "⛑️", chest: "🧥", legs: null, boots: "🥾" },
-                mainhand: { icon: "⛏️", count: 1 },
-                offhand: { icon: "🔥", count: 16 }
-            },
-            "BuildBot_02": {
-                skin: [skinUrl(STEVE_UUID)],
-                armor: { helmet: null, chest: null, legs: null, boots: null },
-                mainhand: { icon: "🪓", count: 1 },
-                offhand: { icon: "🪵", count: 32 }
-            },
-            "FarmerBot_03": {
-                skin: [skinUrl(STEVE_UUID)],
-                armor: { helmet: null, chest: null, legs: null, boots: null },
-                mainhand: { icon: "🛠️", count: 1 },
-                offhand: { icon: "🌾", count: 64 }
-            }
-        };
-
-        const appearanceTemplates = {
-            miner: { skin: [skinUrl(STEVE_UUID)], armor: { helmet: "⛑️", chest: "🧥", legs: null, boots: "🥾" }, mainhand: { icon: "⛏️", count: 1 }, offhand: { icon: "🔥", count: 16 } },
-            builder: { skin: [skinUrl(STEVE_UUID)], armor: { helmet: null, chest: null, legs: null, boots: null }, mainhand: { icon: "🪓", count: 1 }, offhand: { icon: "🪵", count: 32 } },
-            farmer: { skin: [skinUrl(STEVE_UUID)], armor: { helmet: null, chest: null, legs: null, boots: null }, mainhand: { icon: "🛠️", count: 1 }, offhand: { icon: "🌾", count: 64 } },
-            explorer: { skin: [skinUrl(ALEX_UUID)], armor: { helmet: null, chest: null, legs: null, boots: null }, mainhand: { icon: "🗺️", count: 1 }, offhand: { icon: "🗡️", count: 1 } }
-        };
-
-        function getAppearanceForEntity(playerName, status) {
-            if (appearanceByName[playerName]) return appearanceByName[playerName];
-            const template = appearanceTemplates[getTemplateForEntity(playerName, status)] || appearanceTemplates.explorer;
-            const seed = simpleHash(playerName);
-            return {
-                skin: template.skin || [skinUrl(STEVE_UUID)],
-                armor: { ...template.armor },
-                mainhand: { ...template.mainhand },
-                offhand: template.offhand ? { ...template.offhand } : null
-            };
-        }
-
-        function fillMcSlot(el, item) {
-            if (!item || !item.icon) {
-                el.innerHTML = '';
-                return;
-            }
-            el.innerHTML = item.icon + (item.count > 1 ? '<span class="mc-slot-count">' + item.count + '</span>' : '');
-        }
-
-        function renderPaperDoll(playerName, status) {
-            const app = getAppearanceForEntity(playerName, status);
-            const wrap = document.getElementById('skinPreviewWrap');
-            const img = document.getElementById('skinPreview');
-            const placeholder = document.getElementById('skinPreviewPlaceholder');
-
-            // Idle animation: disable for Offline
-            wrap.classList.toggle('is-animated', status.toLowerCase() !== 'offline');
-
-            // Skin: try image(s), fallback to initials
-            const initials = playerName.split(/[_\s]/).map(s => s[0]).join('').toUpperCase().slice(0, 2) || '??';
-            placeholder.textContent = initials;
-            const skinUrls = Array.isArray(app.skin) ? app.skin : (app.skin ? [app.skin] : []);
-            if (skinUrls.length) {
-                let idx = 0;
-                img.style.display = 'block';
-                placeholder.style.display = 'none';
-                img.onerror = function () {
-                    idx++;
-                    if (idx < skinUrls.length) {
-                        img.src = skinUrls[idx];
-                    } else {
-                        img.style.display = 'none';
-                        placeholder.style.display = 'flex';
-                        placeholder.textContent = initials;
-                    }
-                };
-                img.src = skinUrls[0];
-            } else {
-                img.style.display = 'none';
-                img.src = '';
-                placeholder.style.display = 'flex';
-                placeholder.textContent = initials;
-            }
-
-            fillMcSlot(document.getElementById('armorHelmetSlot'), app.armor?.helmet ? { icon: app.armor.helmet, count: 1 } : null);
-            fillMcSlot(document.getElementById('armorChestSlot'), app.armor?.chest ? { icon: app.armor.chest, count: 1 } : null);
-            fillMcSlot(document.getElementById('armorLegsSlot'), app.armor?.legs ? { icon: app.armor.legs, count: 1 } : null);
-            fillMcSlot(document.getElementById('armorBootsSlot'), app.armor?.boots ? { icon: app.armor.boots, count: 1 } : null);
-            fillMcSlot(document.getElementById('mainHandSlot'), app.mainhand || null);
-            fillMcSlot(document.getElementById('offHandSlot'), app.offhand || null);
-        }
-
-        // Render hearts based on data-health (percent 0-100 maps to 10 hearts)
-        function renderHearts(container, healthPercent) {
-            container.innerHTML = '';
-            const totalHearts = 10;
-            const heartsFilled = (healthPercent / 100) * totalHearts; // 0-10
-            const fullHearts = Math.floor(heartsFilled);
-            const halfHeart = heartsFilled % 1 >= 0.5;
-            const emptyHearts = totalHearts - fullHearts - (halfHeart ? 1 : 0);
-
-            for (let i = 0; i < fullHearts; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'heart-sprite full';
-                container.appendChild(heart);
-            }
-            if (halfHeart) {
-                const heart = document.createElement('div');
-                heart.className = 'heart-sprite half';
-                container.appendChild(heart);
-            }
-            for (let i = 0; i < emptyHearts; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'heart-sprite empty';
-                container.appendChild(heart);
-            }
-        }
-
-        // Card click handler
-        document.addEventListener('DOMContentLoaded', function () {
-            // Render all hearts based on data-health
-            document.querySelectorAll('.hearts-container[data-health]').forEach(container => {
-                const health = parseInt(container.getAttribute('data-health'), 10) || 100;
-                renderHearts(container, health);
-            });
-
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                card.addEventListener('click', function (e) {
-                    if (e.target !== this && !e.target.closest('.card-header')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    openModal(this);
-                });
-            });
-
-            // API polling
-            checkApiStatus();
-            fetchBots();
-            setInterval(checkApiStatus, 5000);
-            setInterval(fetchBots, 5000);
-
-            // Server activity log polling
-            try { fetchBotActivity(); } catch (e) { /* ignore */ }
-            setInterval(() => { try { fetchBotActivity(); } catch (e) { } }, 5000);
-        });
-
-        function openModal(cardElement) {
-            const playerName = cardElement.querySelector('.player-name').textContent.split('\n')[0];
-            const status = cardElement.querySelector('.status').textContent;
-            const stats = cardElement.querySelectorAll('.stat-value');
-
-            selectedBot = playerName;
-            document.getElementById('targetName').textContent = `Instructing: ${playerName}`;
-
-            // Populate modal with data from card
-            document.getElementById('modalName').textContent = playerName;
-            document.getElementById('modalStatus').textContent = status;
-            document.getElementById('modalStatus').className = `status ${status.toLowerCase()}`;
-
-            // Extract stats (varies by player/bot)
-            const statTexts = Array.from(stats).map(s => s.textContent);
-
-            if (playerName.includes('Bot')) {
-                document.getElementById('modalAvatar').textContent = '🤖';
-                document.getElementById('modalType').textContent = 'AI Bot';
-                document.getElementById('modalLevel').textContent = statTexts[0] || '--';
-                document.getElementById('modalLocation').textContent = statTexts[1] || '--';
-                document.getElementById('modalHealth').textContent = '100%';
-                document.getElementById('modalXP').textContent = statTexts[2] || '0';
-                document.getElementById('modalTasks').textContent = Math.floor(Math.random() * 150) + 50;
-                document.getElementById('modalUptime').textContent = Math.floor(Math.random() * 48) + 2 + 'h';
-            } else {
-                document.getElementById('modalAvatar').textContent = '👤';
-                document.getElementById('modalType').textContent = 'Human Player';
-                document.getElementById('modalLevel').textContent = statTexts[0] || '--';
-                document.getElementById('modalLocation').textContent = statTexts[1] || '--';
-                document.getElementById('modalHealth').textContent = statTexts[2] || '--';
-                document.getElementById('modalXP').textContent = Math.floor(Math.random() * 5000) + 1000;
-                document.getElementById('modalTasks').textContent = Math.floor(Math.random() * 80) + 10;
-                document.getElementById('modalUptime').textContent = Math.floor(Math.random() * 24) + 1 + 'h';
-            }
-
-            // Generate action log
-            generateActionLog(playerName);
-
-            // Render inventory for this entity (always visible side-by-side)
-            renderInventoryFor(playerName, status);
-
-            // Render paper doll (skin + armor + mainhand/offhand)
-            renderPaperDoll(playerName, status);
-
-            // Show modal
-            document.getElementById('modalOverlay').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-            selectedBot = null;
-            document.getElementById('targetName').textContent = 'Select a bot to instruct';
-        }
-
-        function generateActionLog(playerName) {
-            const logContainer = document.getElementById('actionLog');
-            logContainer.innerHTML = '';
-
-            const actions = [
-                { time: '14:32:45', action: 'Started mining operation', status: 'success' },
-                { time: '14:28:12', action: 'Collected 64x stone blocks', status: 'success' },
-                { time: '14:25:30', action: 'Encountered cave system', status: 'success' },
-                { time: '14:20:15', action: 'Equipped diamond pickaxe', status: 'success' },
-                { time: '14:18:00', action: 'Smelted 32x ore', status: 'success' },
-                { time: '14:15:45', action: 'Low health warning detected', status: 'warning' },
-                { time: '14:10:20', action: 'Collected healing items', status: 'success' },
-            ];
-
-            actions.forEach((log, index) => {
-                const logEntry = document.createElement('div');
-                logEntry.className = 'log-entry';
-                logEntry.innerHTML = `
-                    <div class="log-time">${log.time}</div>
-                    <div class="log-action">${log.action}</div>
-                    <div class="log-status ${log.status}">
-                        ${log.status === 'success' ? '✓' : '⚠'} ${log.status.charAt(0).toUpperCase() + log.status.slice(1)}
-                    </div>
-                `;
-                logContainer.appendChild(logEntry);
-            });
-        }
-
-        // ── API helpers ──────────────────────────────────────────────────────────
+        // ── API helpers ───────────────────────────────────────────────────────────
 
         async function apiCall(method, path, body) {
-            const opts = {
-                method,
-                headers: { 'Content-Type': 'application/json' }
-            };
+            const opts = { method, headers: { 'Content-Type': 'application/json' } };
             if (body) opts.body = JSON.stringify(body);
             const res = await fetch(API_BASE + path, opts);
             if (!res.ok) {
@@ -1660,13 +164,18 @@
             _toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
         }
 
-        // ── API status polling ────────────────────────────────────────────────────
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ── API status ────────────────────────────────────────────────────────────
 
         async function checkApiStatus() {
             const dot = document.getElementById('apiDot');
             const label = document.getElementById('apiStatusLabel');
             try {
-                await fetch(API_BASE + '/bots', { method: 'GET', signal: AbortSignal.timeout(3000) });
+                await fetch(API_BASE + '/bots', { signal: AbortSignal.timeout(3000) });
                 dot.classList.add('online');
                 label.textContent = 'API Connected';
             } catch {
@@ -1679,8 +188,10 @@
 
         async function fetchBots() {
             try {
-                const bots = await apiCall('GET', '/bots');
-                renderApiBots(Array.isArray(bots) ? bots : []);
+                const data = await apiCall('GET', '/bots');
+                // API returns either an array or an object keyed by bot name
+                const bots = Array.isArray(data) ? data : Object.values(data);
+                renderApiBots(bots);
                 const active = bots.filter(b => b.status === 'running').length;
                 const online = bots.filter(b => b.status !== 'dead').length;
                 document.getElementById('statTotalBots').textContent = bots.length;
@@ -1695,7 +206,7 @@
             const container = document.getElementById('apiBotCards');
             container.innerHTML = '';
             if (bots.length === 0) {
-                container.innerHTML = '<div style="color:#666;font-size:0.85em;padding:8px 0;">No live bots — API offline or no bots spawned</div>';
+                container.innerHTML = '<div style="color:#666;font-size:0.85em;padding:8px 0;">No live bots — start a bot or check the API connection.</div>';
                 return;
             }
             bots.forEach(bot => {
@@ -1708,14 +219,14 @@
                         <span class="status ${statusClass}">${escapeHtml(bot.status)}</span>
                     </div>
                     <div class="card-stats">
-                        <div class="stat-item"><span>Port:</span><span class="stat-value">${bot.port || '—'}</span></div>
+                        <div class="stat-item"><span>Port:</span><span class="stat-value">${bot.port ?? '—'}</span></div>
                         <div class="stat-item"><span>User:</span><span class="stat-value">${escapeHtml(bot.username || '—')}</span></div>
                         <div class="stat-item"><span>Task:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
                     </div>
                     <div class="live-bot-actions">
                         <button class="btn-sm btn-select" onclick="selectBotByName('${escapeHtml(bot.name)}')">Select</button>
-                        <button class="btn-sm btn-stop" onclick="stopBotByName('${escapeHtml(bot.name)}')">Stop</button>
-                        <button class="btn-sm btn-kill" onclick="killBotByName('${escapeHtml(bot.name)}')">Kill</button>
+                        <button class="btn-sm btn-stop"   onclick="stopBotByName('${escapeHtml(bot.name)}')">Stop</button>
+                        <button class="btn-sm btn-kill"   onclick="killBotByName('${escapeHtml(bot.name)}')">Kill</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1760,12 +271,12 @@
             const port = parseInt(document.getElementById('spawnPort').value.trim(), 10);
             if (!name || !port) { showApiToast('Bot Name and MC Port are required', true); return; }
             const body = { name, port };
-            const username = document.getElementById('spawnUsername').value.trim();
+            const username    = document.getElementById('spawnUsername').value.trim();
             const environment = document.getElementById('spawnEnvironment').value;
-            const model = document.getElementById('spawnModel').value;
-            if (username) body.username = username;
+            const model       = document.getElementById('spawnModel').value;
+            if (username)    body.username    = username;
             if (environment) body.environment = environment;
-            if (model) body.model = model;
+            if (model)       body.model       = model;
             try {
                 await apiCall('POST', '/bots', body);
                 showApiToast(`Spawned bot: ${name}`);
@@ -1783,14 +294,12 @@
             document.getElementById('subgoalFields').classList.toggle('visible', type === 'subgoal');
             document.getElementById('skillFields').classList.toggle('visible', type === 'skill');
             document.getElementById('stopFields').classList.toggle('visible', type === 'stop');
-            const hideMain = type === 'stop';
-            mainInput.style.display = hideMain ? 'none' : '';
+            mainInput.style.display = type === 'stop' ? 'none' : '';
             const placeholders = {
-                task: "Enter task (e.g., 'Mine 10 diamonds')",
+                task:    "Enter task (e.g., 'Mine 10 diamonds')",
                 explore: "Enter exploration goal (e.g., 'Find a village')",
                 subgoal: "Enter overall task description",
-                skill: "Parameters (comma-separated, optional)",
-                stop: ''
+                skill:   "Parameters (comma-separated, optional)",
             };
             mainInput.placeholder = placeholders[type] || '';
         }
@@ -1799,7 +308,6 @@
             if (!selectedBot) { showApiToast('Select a bot first', true); return; }
             const type = document.getElementById('commandType').value;
             const text = document.getElementById('instructionInput').value.trim();
-
             try {
                 if (type === 'task') {
                     if (!text) { showApiToast('Enter a task', true); return; }
@@ -1815,8 +323,7 @@
                 } else if (type === 'skill') {
                     const skill_path = document.getElementById('skillPathInput').value.trim();
                     if (!skill_path) { showApiToast('Enter a skill path', true); return; }
-                    const paramRaw = text;
-                    const parameters = paramRaw ? paramRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+                    const parameters = text ? text.split(',').map(s => s.trim()).filter(Boolean) : [];
                     await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/skill`, { skill_path, parameters });
                 } else if (type === 'stop') {
                     const clear_queue = document.getElementById('clearQueueInput').checked;
@@ -1829,72 +336,50 @@
             }
         }
 
-        // Allow Ctrl+Enter to send instruction
-        document.getElementById('instructionInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                sendInstruction();
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('instructionInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter' && e.ctrlKey) sendInstruction();
+            });
+
+            checkApiStatus();
+            fetchBots();
+            setInterval(checkApiStatus, 5000);
+            setInterval(fetchBots, 5000);
         });
 
-        // Fetch bot activity JSON written by the backend/checkpoint and render
+        // ── Server activity log ───────────────────────────────────────────────────
+
         async function fetchBotActivity() {
             const container = document.getElementById('serverLogContainer');
-            // try checkpoint JSON first
             const paths = [
-                '/ckpt/activity/bot_activity.json', // if served from root
-                'ckpt/activity/bot_activity.json',  // if served from same dir
-                '/server-setup/data/logs/latest.log' // fallback to raw server log
+                '/ckpt/activity/bot_activity.json',
+                'ckpt/activity/bot_activity.json',
             ];
-
             let events = null;
-
             for (const p of paths) {
                 try {
                     const res = await fetch(p, { cache: 'no-store' });
                     if (!res.ok) continue;
-                    if (p.endsWith('.json')) {
-                        events = await res.json();
-                    } else {
-                        const text = await res.text();
-                        // parse lines for joined/left containing 'bot' or any name
-                        const lines = text.split('\n').reverse();
-                        events = lines.map(l => ({ type: 'line', time: Date.now() / 1000, line: l }));
-                    }
+                    events = await res.json();
                     break;
-                } catch (e) {
-                    // try next path
-                }
+                } catch { }
             }
-
             container.innerHTML = '';
             if (!events || events.length === 0) {
                 container.innerHTML = `<div class="log-entry"><div class="log-time">--:--:--</div><div class="log-action">No events available.</div></div>`;
                 return;
             }
-
-            // events may be an array of objects with {type,time,line} or similar
-            const slice = Array.isArray(events) ? events.slice(-30) : [];
-            slice.reverse();
-            slice.forEach(ev => {
+            events.slice(-30).reverse().forEach(ev => {
                 const entry = document.createElement('div');
                 entry.className = 'log-entry';
                 const ts = ev.time ? new Date(ev.time * 1000) : new Date();
-                const timeStr = ts.toLocaleTimeString();
-                const text = ev.line || (ev.type ? JSON.stringify(ev) : String(ev));
-                let action = text;
-                // try to simplify common patterns
-                if (typeof text === 'string') {
-                    if (/joined the game/.test(text)) action = text.match(/.*joined the game.*/)[0];
-                    if (/left the game/.test(text)) action = text.match(/.*left the game.*/)[0];
-                    if (/lost connection/.test(text)) action = text.match(/.*lost connection.*/)[0];
-                }
-                entry.innerHTML = `<div class="log-time">${timeStr}</div><div class="log-action">${escapeHtml(action)}</div>`;
+                entry.innerHTML = `<div class="log-time">${ts.toLocaleTimeString()}</div><div class="log-action">${escapeHtml(ev.line || JSON.stringify(ev))}</div>`;
                 container.appendChild(entry);
             });
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
+        setInterval(() => fetchBotActivity().catch(() => {}), 5000);
+        fetchBotActivity().catch(() => {});
     </script>
+</body>
+</html>

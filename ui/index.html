@@ -126,13 +126,16 @@
                 <div class="spawn-form-group">
                     <label>Environment</label>
                     <select id="spawnEnvironment">
-                        <option value="">Default</option>
                         <option value="explore">Explore</option>
                         <option value="combat">Combat</option>
                         <option value="farming">Farming</option>
                         <option value="subgoal">Subgoal</option>
                     </select>
                 </div>
+            </div>
+            <div class="spawn-form-group" style="margin-top:10px;">
+                <label>Initial Goal</label>
+                <textarea id="spawnGoal" class="instruction-input" style="min-height:60px;" placeholder="Enter a starting goal for the bot">gather 2 wood and 10 dirt</textarea>
             </div>
             <button class="instruction-button" onclick="spawnBot()">⚡ Spawn Bot</button>
         </div>
@@ -143,6 +146,7 @@
     <script>
         const API_BASE = 'http://localhost:8001';
         let selectedBot = null;
+        let _botsData = [];
 
         // ── API helpers ───────────────────────────────────────────────────────────
 
@@ -194,6 +198,7 @@
                 const data = await apiCall('GET', '/bots');
                 // API returns either an array or an object keyed by bot name
                 const bots = Array.isArray(data) ? data : Object.values(data);
+                _botsData = bots;
                 renderApiBots(bots);
                 updateActivityFromBots(bots);
                 const active = bots.filter(b => b.status === 'running').length;
@@ -223,7 +228,7 @@
                         <span class="status ${statusClass}">${escapeHtml(bot.status)}</span>
                     </div>
                     <div class="card-stats">
-                        <div class="stat-item"><span>Task:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
+                        <div class="stat-item"><span>Goal:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
                     </div>
                     <div class="live-bot-actions">
                         <button class="btn-sm btn-select" onclick="selectBotByName('${escapeHtml(bot.name)}')">Select</button>
@@ -328,15 +333,25 @@
             }
         }
 
+        function nextPort() {
+            const used = new Set(_botsData.map(b => Number(b.port)).filter(Boolean));
+            let port = 3000;
+            while (used.has(port)) port++;
+            return port;
+        }
+
         async function spawnBot() {
             const name = document.getElementById('spawnName').value.trim();
             if (!name) { showApiToast('Bot Name is required', true); return; }
-            const body = { name };
+            const port = nextPort();
             const environment = document.getElementById('spawnEnvironment').value;
-            if (environment) body.environment = environment;
+            const goal = document.getElementById('spawnGoal').value.trim();
             try {
-                await apiCall('POST', '/bots', body);
-                showApiToast(`Spawned bot: ${name}`);
+                await apiCall('POST', '/bots', { name, port, environment });
+                if (goal) {
+                    await apiCall('POST', `/bots/${encodeURIComponent(name)}/explore`, { goal });
+                }
+                showApiToast(`Spawned bot: ${name} on port ${port}`);
                 fetchBots();
             } catch (e) {
                 showApiToast(`Spawn failed: ${e.message}`, true);

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Heart Sprites - Example</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        
+        .example-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #8b7355;
+        }
+        
+        h2 {
+            color: #c0c0c0;
+            margin-bottom: 15px;
+        }
+        
+        /* Heart Container */
+        .hearts-container {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+        
+        /* Individual Heart Sprite */
+        .heart {
+            width: 18px;
+            height: 18px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            display: inline-block;
+        }
+        
+        .heart.full {
+            background-image: url('full.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .heart.half {
+            background-image: url('half.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .heart.empty {
+            background-image: url('empty.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        /* Sprite Sheet Method */
+        .heart-sprite {
+            width: 18px;
+            height: 18px;
+            background-image: url('hearts_sprite_sheet.png');
+            background-size: 54px 18px; /* 3 hearts * 18px */
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            display: inline-block;
+        }
+        
+        .heart-sprite.full {
+            background-position: 0 0;
+        }
+        
+        .heart-sprite.half {
+            background-position: -18px 0;
+        }
+        
+        .heart-sprite.empty {
+            background-position: -36px 0;
+        }
+        
+        /* Animations */
+        @keyframes heartBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes heartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes heartDamage {
+            0% { transform: scale(1); opacity: 1; }
+            25% { transform: scale(1.3) rotate(-5deg); opacity: 0.8; }
+            50% { transform: scale(0.9) rotate(5deg); opacity: 0.6; }
+            75% { transform: scale(1.1) rotate(-3deg); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .heart.blinking {
+            animation: heartBlink 0.5s ease-in-out infinite;
+        }
+        
+        .heart.pulsing {
+            animation: heartPulse 1s ease-in-out infinite;
+        }
+        
+        .heart.damaged {
+            animation: heartDamage 0.4s ease-in-out;
+        }
+        
+        /* Health Bar Display */
+        .health-display {
+            display: flex;
+            gap: 2px;
+            margin: 10px 0;
+        }
+        
+        /* Different Health Levels */
+        .health-20 .heart:nth-child(n+3) {
+            opacity: 0.3;
+        }
+        
+        .health-50 .heart:nth-child(n+6) {
+            opacity: 0.3;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>❤️ Minecraft Heart Sprites & Animations</h1>
+    
+    <div class="example-section">
+        <h2>Basic Heart Sprites</h2>
+        <p>Full, Half, and Empty hearts:</p>
+        <div class="hearts-container">
+            <div class="heart full"></div>
+            <div class="heart half"></div>
+            <div class="heart empty"></div>
+        </div>
+    </div>
+    
+    <div class="example-section">
+        <h2>Health Bar Examples</h2>
+        
+        <p><strong>Full Health (10 hearts):</strong></p>
+        <div class="health-display">
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+        </div>
+        
+        <p><strong>Half Health (5 hearts):</strong></p>
+        <div class="health-display">
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+        </div>
+        
+        <p><strong>Low Health (2.5 hearts):</strong></p>
+        <div class="health-display">
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+            <div class="heart half"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+            <div class="heart empty"></div>
+        </div>
+    </div>
+    
+    <div class="example-section">
+        <h2>Animations</h2>
+        
+        <p><strong>Blinking (low health warning):</strong></p>
+        <div class="hearts-container">
+            <div class="heart full blinking"></div>
+            <div class="heart full blinking"></div>
+            <div class="heart half blinking"></div>
+        </div>
+        
+        <p><strong>Pulsing (health regeneration):</strong></p>
+        <div class="hearts-container">
+            <div class="heart full pulsing"></div>
+            <div class="heart full pulsing"></div>
+            <div class="heart full pulsing"></div>
+        </div>
+        
+        <p><strong>Damage Animation:</strong></p>
+        <div class="hearts-container">
+            <div class="heart full damaged"></div>
+            <div class="heart full"></div>
+            <div class="heart full"></div>
+        </div>
+        <button onclick="triggerDamage()" style="margin-top: 10px; padding: 5px 10px; cursor: pointer;">Trigger Damage Animation</button>
+    </div>
+    
+    <div class="example-section">
+        <h2>Using Sprite Sheet</h2>
+        <p>More efficient for multiple hearts:</p>
+        <div class="hearts-container">
+            <div class="heart-sprite full"></div>
+            <div class="heart-sprite half"></div>
+            <div class="heart-sprite empty"></div>
+            <div class="heart-sprite full"></div>
+            <div class="heart-sprite full"></div>
+        </div>
+    </div>
+    
+    <div class="example-section">
+        <h2>JavaScript Helper Function</h2>
+        <pre style="background: rgba(0, 0, 0, 0.5); padding: 15px; overflow-x: auto;">
+<code>function renderHearts(container, health, maxHealth = 20) {
+    container.innerHTML = '';
+    const totalHearts = maxHealth / 2; // 20 health = 10 hearts
+    const fullHearts = Math.floor(health / 2);
+    const halfHeart = health % 2 === 1;
+    
+    // Full hearts
+    for (let i = 0; i < fullHearts; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart full';
+        container.appendChild(heart);
+    }
+    
+    // Half heart
+    if (halfHeart) {
+        const heart = document.createElement('div');
+        heart.className = 'heart half';
+        container.appendChild(heart);
+    }
+    
+    // Empty hearts
+    const emptyHearts = totalHearts - fullHearts - (halfHeart ? 1 : 0);
+    for (let i = 0; i < emptyHearts; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart empty';
+        container.appendChild(heart);
+    }
+}
+
+// Usage:
+// renderHearts(document.getElementById('health-bar'), 15, 20); // 15/20 health</code></pre>
+    </div>
+    
+    <script>
+        function triggerDamage() {
+            const hearts = document.querySelectorAll('.heart.damaged');
+            hearts.forEach(heart => {
+                heart.style.animation = 'none';
+                setTimeout(() => {
+                    heart.style.animation = '';
+                }, 10);
+            });
+        }
+        
+        // Example: Render hearts dynamically
+        function renderHearts(container, health, maxHealth = 20) {
+            container.innerHTML = '';
+            const totalHearts = maxHealth / 2;
+            const fullHearts = Math.floor(health / 2);
+            const halfHeart = health % 2 === 1;
+            
+            for (let i = 0; i < fullHearts; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart full';
+                container.appendChild(heart);
+            }
+            
+            if (halfHeart) {
+                const heart = document.createElement('div');
+                heart.className = 'heart half';
+                container.appendChild(heart);
+            }
+            
+            const emptyHearts = totalHearts - fullHearts - (halfHeart ? 1 : 0);
+            for (let i = 0; i < emptyHearts; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart empty';
+                container.appendChild(heart);
+            }
+        }
+    </script>
+</body>
+</html>

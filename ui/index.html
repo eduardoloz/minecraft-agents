@@ -84,13 +84,8 @@
         <!-- Server Activity Log -->
         <div class="section">
             <div class="section-title">📡 Server Activity</div>
-            <div style="color:#a0a0a0; margin-bottom:8px; font-size:0.85em;">Recent bot join/leave messages</div>
-            <div id="serverLogContainer">
-                <div class="log-entry">
-                    <div class="log-time">--:--:--</div>
-                    <div class="log-action">No events recorded yet.</div>
-                </div>
-            </div>
+            <div style="color:#a0a0a0; margin-bottom:8px; font-size:0.85em;">Real-time bot activity (connected, started tasks, completed, errors)</div>
+            <div id="serverLogContainer"></div>
         </div>
 
         <!-- Spawn Bot -->
@@ -102,14 +97,6 @@
                     <input type="text" id="spawnName" placeholder="bot1">
                 </div>
                 <div class="spawn-form-group">
-                    <label>MC Port *</label>
-                    <input type="text" id="spawnPort" placeholder="3000">
-                </div>
-                <div class="spawn-form-group">
-                    <label>Username</label>
-                    <input type="text" id="spawnUsername" placeholder="Steve">
-                </div>
-                <div class="spawn-form-group">
                     <label>Environment</label>
                     <select id="spawnEnvironment">
                         <option value="">Default</option>
@@ -117,17 +104,6 @@
                         <option value="combat">Combat</option>
                         <option value="farming">Farming</option>
                         <option value="subgoal">Subgoal</option>
-                    </select>
-                </div>
-                <div class="spawn-form-group">
-                    <label>Model</label>
-                    <select id="spawnModel">
-                        <option value="">Default</option>
-                        <option value="llama3_8b_v3">llama3_8b_v3</option>
-                        <option value="llama3_8b">llama3_8b</option>
-                        <option value="llama3_70b_v1">llama3_70b_v1</option>
-                        <option value="qwen2-7b">qwen2-7b</option>
-                        <option value="qwen2-72b">qwen2-72b</option>
                     </select>
                 </div>
             </div>
@@ -162,6 +138,30 @@
             el.style.display = 'block';
             clearTimeout(_toastTimer);
             _toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
+            
+            // Also add to activity log
+            addActivityEntry('UI', isError ? '⚠️' : '✓', msg);
+        }
+
+        function addActivityEntry(botName, action, details) {
+            const container = document.getElementById('serverLogContainer');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            const actionText = `<strong>${escapeHtml(botName)}</strong> ${escapeHtml(action)} ${escapeHtml(details || '')}`;
+            entry.innerHTML = `<div class="log-time">${timestamp}</div><div class="log-action">${actionText}</div>`;
+            
+            // Add to top of container
+            if (container.firstChild) {
+                container.insertBefore(entry, container.firstChild);
+            } else {
+                container.appendChild(entry);
+            }
+            
+            // Keep only last 100 entries
+            while (container.children.length > 100) {
+                container.removeChild(container.lastChild);
+            }
         }
 
         function escapeHtml(str) {
@@ -219,8 +219,6 @@
                         <span class="status ${statusClass}">${escapeHtml(bot.status)}</span>
                     </div>
                     <div class="card-stats">
-                        <div class="stat-item"><span>Port:</span><span class="stat-value">${bot.port ?? '—'}</span></div>
-                        <div class="stat-item"><span>User:</span><span class="stat-value">${escapeHtml(bot.username || '—')}</span></div>
                         <div class="stat-item"><span>Task:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
                     </div>
                     <div class="live-bot-actions">
@@ -268,18 +266,25 @@
 
         async function spawnBot() {
             const name = document.getElementById('spawnName').value.trim();
-            const port = parseInt(document.getElementById('spawnPort').value.trim(), 10);
-            if (!name || !port) { showApiToast('Bot Name and MC Port are required', true); return; }
-            const body = { name, port };
-            const username    = document.getElementById('spawnUsername').value.trim();
+            if (!name) { showApiToast('Bot Name is required', true); return; }
+
+            // Auto-assign port: start at 3000, increment past any in-use ports
+            let port = 3000;
+            try {
+                const data = await apiCall('GET', '/bots');
+                const bots = Array.isArray(data) ? data : Object.values(data);
+                const usedPorts = bots.map(b => b.port).filter(p => p >= 3000);
+                while (usedPorts.includes(port)) port++;
+            } catch {}
+
+            const body = { name, port, username: name };
             const environment = document.getElementById('spawnEnvironment').value;
-            const model       = document.getElementById('spawnModel').value;
-            if (username)    body.username    = username;
             if (environment) body.environment = environment;
-            if (model)       body.model       = model;
             try {
                 await apiCall('POST', '/bots', body);
                 showApiToast(`Spawned bot: ${name}`);
+                document.getElementById('spawnName').value = '';
+                document.getElementById('spawnEnvironment').value = '';
                 fetchBots();
             } catch (e) {
                 showApiToast(`Spawn failed: ${e.message}`, true);
@@ -349,33 +354,27 @@
 
         // ── Server activity log ───────────────────────────────────────────────────
 
+        let _lastServerActivityTime = 0;
+
         async function fetchBotActivity() {
             const container = document.getElementById('serverLogContainer');
-            const paths = [
-                '/ckpt/activity/bot_activity.json',
-                'ckpt/activity/bot_activity.json',
-            ];
-            let events = null;
-            for (const p of paths) {
-                try {
-                    const res = await fetch(p, { cache: 'no-store' });
-                    if (!res.ok) continue;
-                    events = await res.json();
-                    break;
-                } catch { }
+            try {
+                const res = await fetch(`${API_BASE}/activity?limit=50`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const events = data.activity || [];
+                
+                // Only add new events that arrived after last fetch
+                events.forEach(ev => {
+                    const eventTime = new Date(ev.fullTime).getTime();
+                    if (eventTime > _lastServerActivityTime) {
+                        addActivityEntry(ev.botName, ev.action, ev.details);
+                        _lastServerActivityTime = eventTime;
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to fetch activity:', err);
             }
-            container.innerHTML = '';
-            if (!events || events.length === 0) {
-                container.innerHTML = `<div class="log-entry"><div class="log-time">--:--:--</div><div class="log-action">No events available.</div></div>`;
-                return;
-            }
-            events.slice(-30).reverse().forEach(ev => {
-                const entry = document.createElement('div');
-                entry.className = 'log-entry';
-                const ts = ev.time ? new Date(ev.time * 1000) : new Date();
-                entry.innerHTML = `<div class="log-time">${ts.toLocaleTimeString()}</div><div class="log-action">${escapeHtml(ev.line || JSON.stringify(ev))}</div>`;
-                container.appendChild(entry);
-            });
         }
 
         setInterval(() => fetchBotActivity().catch(() => {}), 5000);

@@ -257,17 +257,18 @@ app.post("/step", async (req, res) => {
     bot.cumulativeObs = [];
     await bot.waitForTicks(bot.waitTicks);
     const r = await evaluateCode(code, programs);
-    process.off("uncaughtException", otherError);
     if (r !== "success") {
-        bot.emit("error", handleError(r));
+        try {
+            bot.emit("error", handleError(r));
+        } catch (e) {
+            // bot has no error listener; error is already captured in r and will be returned via observe()
+        }
     }
+    process.off("uncaughtException", otherError);
     await returnItems();
     // wait for last message
     await bot.waitForTicks(bot.waitTicks);
-    if (!response_sent) {
-        response_sent = true;
-        res.json(bot.observe());
-    }
+    safeRespond();
     bot.removeListener("physicTick", onTick);
 
     async function evaluateCode(code, programs) {

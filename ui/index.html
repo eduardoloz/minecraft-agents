@@ -329,17 +329,49 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .modal {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
             background: rgba(0, 0, 0, 0.7);
             border: 4px solid #8b7355;
             border-radius: 0px;
             padding: 30px;
-            max-width: 600px;
-            width: 90%;
+            max-width: 1100px;
+            width: 95%;
             max-height: 85vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .modal-detail-panel {
+            flex: 1;
+            min-width: 320px;
+            max-width: 480px;
             overflow-y: auto;
+        }
+
+        .modal-inventory-panel {
+            flex: 0 0 auto;
+            min-width: 450px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1000px) {
+            .modal {
+                flex-direction: column;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .modal-detail-panel {
+                max-width: none;
+            }
+            .modal-inventory-panel {
+                min-width: 100%;
+            }
         }
 
         .modal-close {
@@ -371,6 +403,117 @@
             padding-bottom: 20px;
             border-bottom: 3px solid #c0c0c0;
             position: relative;
+        }
+
+        /* Paper doll (Minecraft-style avatar) - above inventory on right */
+        .paperdoll-panel-wrapper {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #8b7355;
+        }
+
+        .paperdoll-panel {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .skin-preview-wrap {
+            position: relative;
+            width: 240px;
+            height: 336px;
+        }
+
+        .skin-preview-wrap.is-animated {
+            animation: paperdoll-idle 2.5s ease-in-out infinite;
+        }
+
+        @keyframes paperdoll-idle {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(0.3deg); }
+        }
+
+        .skin-preview {
+            width: 240px;
+            height: 336px;
+            min-width: 240px;
+            min-height: 336px;
+            border: 3px solid #8b7355;
+            background: rgba(0, 0, 0, 0.4);
+            background-image:
+                linear-gradient(45deg, #585858 25%, transparent 25%),
+                linear-gradient(-45deg, #585858 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #585858 75%),
+                linear-gradient(-45deg, transparent 75%, #585858 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            object-fit: contain;
+            display: block;
+        }
+
+        .skin-preview-placeholder {
+            width: 240px;
+            height: 336px;
+            min-width: 240px;
+            min-height: 336px;
+            border: 3px solid #8b7355;
+            background: rgba(0, 0, 0, 0.4);
+            background-image:
+                linear-gradient(45deg, #585858 25%, transparent 25%),
+                linear-gradient(-45deg, #585858 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #585858 75%),
+                linear-gradient(-45deg, transparent 75%, #585858 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #c0c0c0;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .armor-column {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hand-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .mc-slot {
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 2px solid #8b7355;
+            box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .mc-slot:hover {
+            border-color: #c0c0c0;
+            background: rgba(0, 0, 0, 0.45);
+        }
+
+        .mc-slot-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 11px;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
 
         .avatar {
@@ -467,6 +610,46 @@
 
         .log-status.error {
             color: #ef4444;
+        }
+
+        .inventory-label {
+            font-size: 0.8em;
+            color: #a0a0a0;
+            margin-bottom: 6px;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 44px);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .inventory-slot {
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 2px solid #8b7355;
+            box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 24px;
+        }
+
+        .inventory-slot:hover {
+            border-color: #c0c0c0;
+            background: rgba(0, 0, 0, 0.45);
+        }
+
+        .inventory-slot-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 12px;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
     </style>
 </head>
@@ -655,6 +838,7 @@
     </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Server Activity Log -->
     <div class="section" id="serverLogSection" style="max-width:1400px;margin:20px auto;">
         <div class="section-title">📡 Server Activity</div>
@@ -670,15 +854,19 @@
     </div>
 
     <!-- Detail Modal -->
+=======
+    <!-- Detail Modal (details + inventory side by side) -->
+>>>>>>> 834d9b3 (Fix: Enlarge avatar display and prevent cropping)
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
 
-            <!-- Modal Header with Avatar and Basic Info -->
+            <!-- Detail Panel (left) -->
+            <div class="modal-detail-panel">
+            <!-- Modal Header (name + status + info) -->
             <div class="modal-header">
-                <div class="avatar" id="modalAvatar">👤</div>
                 <div class="player-info">
-                    <h2 id="modalName">Player Name</h2>
+                    <h2><span id="modalAvatar"></span> <span id="modalName">Player Name</span></h2>
                     <span class="status online" id="modalStatus">Online</span>
                     <div class="player-info-row">
                         <div class="info-item">
@@ -731,11 +919,293 @@
                     </div>
                 </div>
             </div>
+            </div>
+
+            <!-- Inventory Panel (right) - paper doll above inventory -->
+            <div class="modal-inventory-panel">
+            <!-- Paper doll (skin + armor) - above inventory -->
+            <div class="paperdoll-panel-wrapper">
+                <div class="paperdoll-panel">
+                    <div class="skin-preview-wrap" id="skinPreviewWrap">
+                        <img class="skin-preview" id="skinPreview" alt="" style="display:none;">
+                        <div class="skin-preview-placeholder" id="skinPreviewPlaceholder">??</div>
+                    </div>
+                    <div>
+                        <div class="armor-column">
+                            <div class="mc-slot" id="armorHelmetSlot" title="Helmet"></div>
+                            <div class="mc-slot" id="armorChestSlot" title="Chestplate"></div>
+                            <div class="mc-slot" id="armorLegsSlot" title="Leggings"></div>
+                            <div class="mc-slot" id="armorBootsSlot" title="Boots"></div>
+                        </div>
+                        <div class="hand-row">
+                            <div class="mc-slot" id="mainHandSlot" title="Main hand"></div>
+                            <div class="mc-slot" id="offHandSlot" title="Off hand"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="modal-section-title">🎒 Inventory</div>
+                <div class="inventory-label">Inventory</div>
+                <div class="inventory-grid" id="modalInventoryMainGrid"></div>
+                <div class="inventory-label">Hotbar</div>
+                <div class="inventory-grid" id="modalInventoryHotbarGrid"></div>
+            </div>
         </div>
     </div>
 
     <script>
         let selectedBot = null;
+
+        // Per-entity inventories (explicit entries)
+        const inventoriesByName = {
+            "Steve_Gaming": [
+                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
+                { id: "dirt", name: "Dirt", icon: "🟫", count: 32 },
+                { id: "oak_log", name: "Oak Log", icon: "🪵", count: 16 },
+                { id: "planks", name: "Oak Planks", icon: "🪵", count: 64 },
+                { id: "sticks", name: "Stick", icon: "〰️", count: 32 },
+                { id: "coal", name: "Coal", icon: "⚫", count: 16 },
+                { id: "iron_ingot", name: "Iron Ingot", icon: "⛓️", count: 12 },
+                null, null, { id: "torch", name: "Torch", icon: "🔥", count: 16 },
+                { id: "crafting_table", name: "Crafting Table", icon: "🪵", count: 1 },
+                { id: "furnace", name: "Furnace", icon: "⬛", count: 1 },
+                null, null, null,
+                { id: "iron_pickaxe", name: "Iron Pickaxe", icon: "⛏️", count: 1 },
+                { id: "stone_axe", name: "Stone Axe", icon: "🪓", count: 1 },
+                { id: "shovel", name: "Shovel", icon: "🛠️", count: 1 },
+                { id: "sword", name: "Iron Sword", icon: "🗡️", count: 1 },
+                null, null, null, null, null, null, null, null,
+                { id: "bread", name: "Bread", icon: "🍞", count: 8 },
+                { id: "steak", name: "Steak", icon: "🥩", count: 4 },
+                { id: "apple", name: "Apple", icon: "🍎", count: 16 },
+                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 6 },
+                { id: "anvil", name: "Anvil", icon: "⚒️", count: 1 },
+                null, null, null, null
+            ]
+        };
+
+        // Templates for entities without explicit inventory (Miner/Builder/Farmer/Explorer)
+        const inventoryTemplates = {
+            miner: [
+                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
+                { id: "coal", name: "Coal", icon: "⚫", count: 32 },
+                { id: "iron_ingot", name: "Iron Ingot", icon: "⛓️", count: 8 },
+                { id: "torch", name: "Torch", icon: "🔥", count: 16 },
+                null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                { id: "iron_pickaxe", name: "Iron Pickaxe", icon: "⛏️", count: 1 },
+                { id: "torch", name: "Torch", icon: "🔥", count: 16 },
+                { id: "bread", name: "Bread", icon: "🍞", count: 8 },
+                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
+                null, null, null, null, null
+            ],
+            builder: [
+                { id: "planks", name: "Oak Planks", icon: "🪵", count: 64 },
+                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 64 },
+                { id: "sticks", name: "Stick", icon: "〰️", count: 32 },
+                { id: "crafting_table", name: "Crafting Table", icon: "🪵", count: 1 },
+                null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                { id: "stone_axe", name: "Stone Axe", icon: "🪓", count: 1 },
+                { id: "shovel", name: "Shovel", icon: "🛠️", count: 1 },
+                { id: "planks", name: "Oak Planks", icon: "🪵", count: 64 },
+                { id: "cobblestone", name: "Cobblestone", icon: "🪨", count: 32 },
+                null, null, null, null, null
+            ],
+            farmer: [
+                { id: "wheat_seeds", name: "Wheat Seeds", icon: "🌾", count: 64 },
+                { id: "wheat", name: "Wheat", icon: "🌾", count: 48 },
+                { id: "bread", name: "Bread", icon: "🍞", count: 32 },
+                { id: "carrot", name: "Carrot", icon: "🥕", count: 16 },
+                null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                { id: "stone_hoe", name: "Stone Hoe", icon: "🛠️", count: 1 },
+                { id: "bread", name: "Bread", icon: "🍞", count: 8 },
+                { id: "wheat_seeds", name: "Wheat Seeds", icon: "🌾", count: 64 },
+                null, null, null, null, null, null
+            ],
+            explorer: [
+                { id: "map", name: "Map", icon: "🗺️", count: 1 },
+                { id: "compass", name: "Compass", icon: "🧭", count: 1 },
+                { id: "torch", name: "Torch", icon: "🔥", count: 32 },
+                { id: "boat", name: "Boat", icon: "🛶", count: 1 },
+                null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                { id: "iron_sword", name: "Iron Sword", icon: "🗡️", count: 1 },
+                { id: "torch", name: "Torch", icon: "🔥", count: 16 },
+                { id: "bread", name: "Bread", icon: "🍞", count: 16 },
+                { id: "apple", name: "Apple", icon: "🍎", count: 8 },
+                null, null, null, null, null
+            ]
+        };
+
+        function getTemplateForEntity(playerName, status) {
+            const s = (playerName + status).toLowerCase();
+            if (/miner|mining/i.test(playerName) || /mining/i.test(status)) return "miner";
+            if (/builder|build|building/i.test(playerName) || /building|crafting/i.test(status)) return "builder";
+            if (/farmer|farm|harvest/i.test(playerName) || /farm|harvest/i.test(status)) return "farmer";
+            if (/explorer|explore|ocean|idle/i.test(playerName) || /ocean|idle/i.test(status)) return "explorer";
+            return "explorer";
+        }
+
+        function simpleHash(str) {
+            let h = 0;
+            for (let i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i) | 0;
+            return Math.abs(h);
+        }
+
+        function generateInventoryFromTemplate(playerName, status) {
+            const template = inventoryTemplates[getTemplateForEntity(playerName, status)] || inventoryTemplates.explorer;
+            const seed = simpleHash(playerName);
+            return template.map((item, i) => {
+                if (!item) return null;
+                const variation = (seed + i * 7) % 100;
+                const count = item.count > 1 ? Math.max(1, item.count - (variation % 20) + 5) : 1;
+                return { ...item, count };
+            });
+        }
+
+        function getInventoryForEntity(playerName, status) {
+            if (inventoriesByName[playerName]) return inventoriesByName[playerName];
+            return generateInventoryFromTemplate(playerName, status);
+        }
+
+        function renderInventoryFor(playerName, status) {
+            const arr = getInventoryForEntity(playerName, status);
+            const mainGrid = document.getElementById('modalInventoryMainGrid');
+            const hotbarGrid = document.getElementById('modalInventoryHotbarGrid');
+            mainGrid.innerHTML = '';
+            hotbarGrid.innerHTML = '';
+            for (let i = 0; i < 27; i++) mainGrid.appendChild(createInventorySlot(arr[i]));
+            for (let i = 27; i < 36; i++) hotbarGrid.appendChild(createInventorySlot(arr[i]));
+        }
+
+        function createInventorySlot(item) {
+            const slot = document.createElement('div');
+            slot.className = 'inventory-slot';
+            if (item) {
+                slot.innerHTML = item.icon + (item.count > 1 ? '<span class="inventory-slot-count">' + item.count + '</span>' : '');
+            }
+            return slot;
+        }
+
+        // Paper doll / avatar appearance (per entity)
+        // Mineatar front body (front-facing): https://api.mineatar.io/body/front/{uuid}?scale=10
+        const STEVE_UUID = "8667ba71-b85a-4004-af54-45757d09821c";
+        const ALEX_UUID = "069a79f444e94726a5befca90e38aaf5";
+        const skinUrl = (uuid) => `https://api.mineatar.io/body/front/${uuid}?scale=10`;
+        const appearanceByName = {
+            "Steve_Gaming": {
+                skin: [skinUrl(STEVE_UUID), "assets/skins/steve.png"],
+                armor: { helmet: "⛑️", chest: "🧥", legs: "👖", boots: "🥾" },
+                mainhand: { icon: "⛏️", count: 1 },
+                offhand: { icon: "🛡️", count: 1 }
+            },
+            "Luna_Explorer": {
+                skin: [skinUrl(ALEX_UUID)],
+                armor: { helmet: null, chest: null, legs: null, boots: null },
+                mainhand: { icon: "🗺️", count: 1 },
+                offhand: { icon: "🗡️", count: 1 }
+            },
+            "Alex_Builder": {
+                skin: [skinUrl(ALEX_UUID)],
+                armor: { helmet: null, chest: null, legs: null, boots: null },
+                mainhand: { icon: "🪓", count: 1 },
+                offhand: { icon: "🪵", count: 64 }
+            },
+            "MinerBot_01": {
+                skin: [skinUrl(STEVE_UUID)],
+                armor: { helmet: "⛑️", chest: "🧥", legs: null, boots: "🥾" },
+                mainhand: { icon: "⛏️", count: 1 },
+                offhand: { icon: "🔥", count: 16 }
+            },
+            "BuildBot_02": {
+                skin: [skinUrl(STEVE_UUID)],
+                armor: { helmet: null, chest: null, legs: null, boots: null },
+                mainhand: { icon: "🪓", count: 1 },
+                offhand: { icon: "🪵", count: 32 }
+            },
+            "FarmerBot_03": {
+                skin: [skinUrl(STEVE_UUID)],
+                armor: { helmet: null, chest: null, legs: null, boots: null },
+                mainhand: { icon: "🛠️", count: 1 },
+                offhand: { icon: "🌾", count: 64 }
+            }
+        };
+
+        const appearanceTemplates = {
+            miner: { skin: [skinUrl(STEVE_UUID)], armor: { helmet: "⛑️", chest: "🧥", legs: null, boots: "🥾" }, mainhand: { icon: "⛏️", count: 1 }, offhand: { icon: "🔥", count: 16 } },
+            builder: { skin: [skinUrl(STEVE_UUID)], armor: { helmet: null, chest: null, legs: null, boots: null }, mainhand: { icon: "🪓", count: 1 }, offhand: { icon: "🪵", count: 32 } },
+            farmer: { skin: [skinUrl(STEVE_UUID)], armor: { helmet: null, chest: null, legs: null, boots: null }, mainhand: { icon: "🛠️", count: 1 }, offhand: { icon: "🌾", count: 64 } },
+            explorer: { skin: [skinUrl(ALEX_UUID)], armor: { helmet: null, chest: null, legs: null, boots: null }, mainhand: { icon: "🗺️", count: 1 }, offhand: { icon: "🗡️", count: 1 } }
+        };
+
+        function getAppearanceForEntity(playerName, status) {
+            if (appearanceByName[playerName]) return appearanceByName[playerName];
+            const template = appearanceTemplates[getTemplateForEntity(playerName, status)] || appearanceTemplates.explorer;
+            const seed = simpleHash(playerName);
+            return {
+                skin: template.skin || [skinUrl(STEVE_UUID)],
+                armor: { ...template.armor },
+                mainhand: { ...template.mainhand },
+                offhand: template.offhand ? { ...template.offhand } : null
+            };
+        }
+
+        function fillMcSlot(el, item) {
+            if (!item || !item.icon) {
+                el.innerHTML = '';
+                return;
+            }
+            el.innerHTML = item.icon + (item.count > 1 ? '<span class="mc-slot-count">' + item.count + '</span>' : '');
+        }
+
+        function renderPaperDoll(playerName, status) {
+            const app = getAppearanceForEntity(playerName, status);
+            const wrap = document.getElementById('skinPreviewWrap');
+            const img = document.getElementById('skinPreview');
+            const placeholder = document.getElementById('skinPreviewPlaceholder');
+
+            // Idle animation: disable for Offline
+            wrap.classList.toggle('is-animated', status.toLowerCase() !== 'offline');
+
+            // Skin: try image(s), fallback to initials
+            const initials = playerName.split(/[_\s]/).map(s => s[0]).join('').toUpperCase().slice(0, 2) || '??';
+            placeholder.textContent = initials;
+            const skinUrls = Array.isArray(app.skin) ? app.skin : (app.skin ? [app.skin] : []);
+            if (skinUrls.length) {
+                let idx = 0;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+                img.onerror = function () {
+                    idx++;
+                    if (idx < skinUrls.length) {
+                        img.src = skinUrls[idx];
+                    } else {
+                        img.style.display = 'none';
+                        placeholder.style.display = 'flex';
+                        placeholder.textContent = initials;
+                    }
+                };
+                img.src = skinUrls[0];
+            } else {
+                img.style.display = 'none';
+                img.src = '';
+                placeholder.style.display = 'flex';
+                placeholder.textContent = initials;
+            }
+
+            fillMcSlot(document.getElementById('armorHelmetSlot'), app.armor?.helmet ? { icon: app.armor.helmet, count: 1 } : null);
+            fillMcSlot(document.getElementById('armorChestSlot'), app.armor?.chest ? { icon: app.armor.chest, count: 1 } : null);
+            fillMcSlot(document.getElementById('armorLegsSlot'), app.armor?.legs ? { icon: app.armor.legs, count: 1 } : null);
+            fillMcSlot(document.getElementById('armorBootsSlot'), app.armor?.boots ? { icon: app.armor.boots, count: 1 } : null);
+            fillMcSlot(document.getElementById('mainHandSlot'), app.mainhand || null);
+            fillMcSlot(document.getElementById('offHandSlot'), app.offhand || null);
+        }
 
         // Render hearts based on data-health (percent 0-100 maps to 10 hearts)
         function renderHearts(container, healthPercent) {
@@ -824,6 +1294,12 @@
 
             // Generate action log
             generateActionLog(playerName);
+
+            // Render inventory for this entity (always visible side-by-side)
+            renderInventoryFor(playerName, status);
+
+            // Render paper doll (skin + armor + mainhand/offhand)
+            renderPaperDoll(playerName, status);
 
             // Show modal
             document.getElementById('modalOverlay').classList.add('active');

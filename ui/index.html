@@ -651,6 +651,218 @@
             color: #fff;
             text-shadow: 1px 1px 0 #000;
         }
+
+        /* API status dot in header */
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8em;
+            color: #a0a0a0;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .api-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            flex-shrink: 0;
+        }
+
+        .api-dot.online {
+            background: #22c55e;
+            box-shadow: 0 0 6px #22c55e;
+        }
+
+        /* Command type select */
+        .command-type-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8b7355;
+            color: #fff;
+            padding: 4px 8px;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .command-type-select:focus {
+            outline: none;
+            border-color: #c0c0c0;
+        }
+
+        /* Stop button */
+        .instruction-button-stop {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 0px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+        }
+
+        .instruction-button-stop:hover {
+            background: rgba(239, 68, 68, 0.5);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-row .instruction-button,
+        .button-row .instruction-button-stop {
+            width: auto;
+            flex: 1;
+        }
+
+        /* Extra command fields */
+        .extra-fields {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .extra-fields.visible {
+            display: flex;
+        }
+
+        .extra-fields label {
+            color: #a0a0a0;
+            font-size: 0.85em;
+            margin-bottom: 2px;
+        }
+
+        .extra-fields input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #8b7355;
+            color: #fff;
+            padding: 8px;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+        }
+
+        .extra-fields input[type="text"]:focus {
+            outline: none;
+            border-color: #c0c0c0;
+        }
+
+        .extra-fields input[type="checkbox"] {
+            margin-right: 6px;
+        }
+
+        /* Live bot cards */
+        .live-bot-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.8em;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+            border: 2px solid;
+            cursor: pointer;
+            font-weight: bold;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .btn-select {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        .btn-select:hover { background: rgba(34,197,94,0.2); }
+
+        .btn-stop {
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+
+        .btn-stop:hover { background: rgba(251,191,36,0.2); }
+
+        .btn-kill {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .btn-kill:hover { background: rgba(239,68,68,0.2); }
+
+        .mock-label {
+            font-size: 0.7em;
+            color: #666;
+            margin-left: 6px;
+        }
+
+        /* Spawn bot form */
+        .spawn-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spawn-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .spawn-form-group label {
+            color: #a0a0a0;
+            font-size: 0.8em;
+        }
+
+        .spawn-form-group input,
+        .spawn-form-group select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #8b7355;
+            color: #fff;
+            padding: 8px;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+            font-size: 0.9em;
+        }
+
+        .spawn-form-group input:focus,
+        .spawn-form-group select:focus {
+            outline: none;
+            border-color: #c0c0c0;
+        }
+
+        /* Toast notification */
+        #apiToast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #8b7355;
+            color: #fff;
+            padding: 12px 18px;
+            font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+            font-size: 0.9em;
+            z-index: 9999;
+            max-width: 320px;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        #apiToast.error {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        #apiToast.success {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
     </style>
 </head>
 
@@ -659,19 +871,23 @@
         <header>
             <h1>⛏️ Minecraft Agents Dashboard</h1>
             <p class="subtitle">Real-time Player & AI Bot Monitoring</p>
+            <div class="api-status">
+                <div class="api-dot" id="apiDot"></div>
+                <span id="apiStatusLabel">API Offline</span>
+            </div>
         </header>
 
         <div class="stats-bar">
             <div class="stat-box">
-                <div class="stat-number">8</div>
-                <div class="stat-label">Total Players</div>
+                <div class="stat-number" id="statTotalBots">—</div>
+                <div class="stat-label">Total Bots</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number">5</div>
+                <div class="stat-number" id="statActiveBots">—</div>
                 <div class="stat-label">Active Bots</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number">7</div>
+                <div class="stat-number" id="statOnline">—</div>
                 <div class="stat-label">Online Now</div>
             </div>
         </div>
@@ -754,10 +970,12 @@
         <!-- AI Bots Section -->
         <div class="section">
             <h2 class="section-title">🤖 AI Bots</h2>
+            <!-- Live API bots render here -->
+            <div id="apiBotCards" class="cards" style="margin-bottom:15px;"></div>
             <div class="cards">
                 <div class="card">
                     <div class="card-header">
-                        <span class="player-name">MinerBot_01<span class="bot-badge">AI</span></span>
+                        <span class="player-name">MinerBot_01<span class="bot-badge">AI</span><span class="mock-label">(example)</span></span>
                         <span class="status mining">Mining</span>
                     </div>
                     <div class="card-stats">
@@ -779,7 +997,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <span class="player-name">BuildBot_02<span class="bot-badge">AI</span></span>
+                        <span class="player-name">BuildBot_02<span class="bot-badge">AI</span><span class="mock-label">(example)</span></span>
                         <span class="status crafting">Building</span>
                     </div>
                     <div class="card-stats">
@@ -801,7 +1019,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <span class="player-name">FarmerBot_03<span class="bot-badge">AI</span></span>
+                        <span class="player-name">FarmerBot_03<span class="bot-badge">AI</span><span class="mock-label">(example)</span></span>
                         <span class="status online">Harvesting</span>
                     </div>
                     <div class="card-stats">
@@ -831,14 +1049,42 @@
                 <div class="instruction-title">📝 Send Instruction</div>
                 <div class="instruction-target" id="targetName">Select a bot to instruct</div>
             </div>
+            <select class="command-type-select" id="commandType" onchange="updateCommandFields()">
+                <option value="task">Task</option>
+                <option value="explore">Explore</option>
+                <option value="subgoal">Subgoal</option>
+                <option value="skill">Skill</option>
+                <option value="stop">Stop</option>
+            </select>
         </div>
         <textarea id="instructionInput" class="instruction-input"
-            placeholder="Enter instruction (e.g., 'Mine stone at coordinates 100, 50, 200' or 'Build a house')"></textarea>
-        <button class="instruction-button" onclick="sendInstruction()">Send Command</button>
+            placeholder="Enter instruction (e.g., 'Mine 10 diamonds' or 'Find a village')"></textarea>
+
+        <!-- Subgoal extras -->
+        <div class="extra-fields" id="subgoalFields">
+            <label>Sub-goals (one per line):</label>
+            <textarea id="subGoalsInput" class="instruction-input" style="min-height:60px;"
+                placeholder="chop oak tree&#10;collect 10 logs"></textarea>
+        </div>
+
+        <!-- Skill extras -->
+        <div class="extra-fields" id="skillFields">
+            <label>Skill path:</label>
+            <input type="text" id="skillPathInput" placeholder="./skill_library/craftWoodenPlanks.js">
+        </div>
+
+        <!-- Stop extras -->
+        <div class="extra-fields" id="stopFields">
+            <label><input type="checkbox" id="clearQueueInput"> Clear task queue</label>
+        </div>
+
+        <div class="button-row">
+            <button class="instruction-button" onclick="sendInstruction()">⚡ Send</button>
+            <button class="instruction-button-stop" onclick="stopSelectedBot()">⏹ Stop Bot</button>
+        </div>
     </div>
     </div>
 
-<<<<<<< HEAD
     <!-- Server Activity Log -->
     <div class="section" id="serverLogSection" style="max-width:1400px;margin:20px auto;">
         <div class="section-title">📡 Server Activity</div>
@@ -853,10 +1099,51 @@
         </div>
     </div>
 
+    <!-- Spawn Bot Section -->
+    <div class="section" style="max-width:1400px;margin:20px auto;">
+        <div class="section-title">⚡ Spawn Bot</div>
+        <div class="spawn-form">
+            <div class="spawn-form-group">
+                <label>Bot Name *</label>
+                <input type="text" id="spawnName" placeholder="bot1">
+            </div>
+            <div class="spawn-form-group">
+                <label>MC Port *</label>
+                <input type="text" id="spawnPort" placeholder="3000">
+            </div>
+            <div class="spawn-form-group">
+                <label>Username</label>
+                <input type="text" id="spawnUsername" placeholder="Steve">
+            </div>
+            <div class="spawn-form-group">
+                <label>Environment</label>
+                <select id="spawnEnvironment">
+                    <option value="">Default</option>
+                    <option value="explore">Explore</option>
+                    <option value="combat">Combat</option>
+                    <option value="farming">Farming</option>
+                    <option value="subgoal">Subgoal</option>
+                </select>
+            </div>
+            <div class="spawn-form-group">
+                <label>Model</label>
+                <select id="spawnModel">
+                    <option value="">Default</option>
+                    <option value="llama3_8b_v3">llama3_8b_v3</option>
+                    <option value="llama3_8b">llama3_8b</option>
+                    <option value="llama3_70b_v1">llama3_70b_v1</option>
+                    <option value="qwen2-7b">qwen2-7b</option>
+                    <option value="qwen2-72b">qwen2-72b</option>
+                </select>
+            </div>
+        </div>
+        <button class="instruction-button" onclick="spawnBot()">⚡ Spawn Bot</button>
+    </div>
+
+    <!-- Toast -->
+    <div id="apiToast"></div>
+
     <!-- Detail Modal -->
-=======
-    <!-- Detail Modal (details + inventory side by side) -->
->>>>>>> 834d9b3 (Fix: Enlarge avatar display and prevent cropping)
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -954,6 +1241,7 @@
     </div>
 
     <script>
+        const API_BASE = 'http://localhost:8001';
         let selectedBot = null;
 
         // Per-entity inventories (explicit entries)
@@ -1251,9 +1539,16 @@
                     openModal(this);
                 });
             });
-            // start polling server activity log
+
+            // API polling
+            checkApiStatus();
+            fetchBots();
+            setInterval(checkApiStatus, 5000);
+            setInterval(fetchBots, 5000);
+
+            // Server activity log polling
             try { fetchBotActivity(); } catch (e) { /* ignore */ }
-            setInterval(() => { try { fetchBotActivity(); } catch (e) { } }, 3000);
+            setInterval(() => { try { fetchBotActivity(); } catch (e) { } }, 5000);
         });
 
         function openModal(cardElement) {
@@ -1339,28 +1634,202 @@
             });
         }
 
-        function sendInstruction() {
-            const input = document.getElementById('instructionInput');
-            const instruction = input.value.trim();
+        // ── API helpers ──────────────────────────────────────────────────────────
 
-            if (!selectedBot) {
-                alert('Please select a bot first by clicking on one!');
-                return;
+        async function apiCall(method, path, body) {
+            const opts = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(API_BASE + path, opts);
+            if (!res.ok) {
+                const text = await res.text().catch(() => res.statusText);
+                throw new Error(`${res.status}: ${text}`);
             }
-
-            if (!instruction) {
-                alert('Please enter an instruction!');
-                return;
-            }
-
-            // Simulate sending instruction
-            console.log(`Instruction sent to ${selectedBot}: ${instruction}`);
-            alert(`✓ Instruction sent to ${selectedBot}:\n\n"${instruction}"`);
-
-            input.value = '';
+            return res.json().catch(() => ({}));
         }
 
-        // Allow Enter key to send instruction
+        let _toastTimer = null;
+        function showApiToast(msg, isError = false) {
+            const el = document.getElementById('apiToast');
+            el.textContent = msg;
+            el.className = isError ? 'error' : 'success';
+            el.style.display = 'block';
+            clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
+        }
+
+        // ── API status polling ────────────────────────────────────────────────────
+
+        async function checkApiStatus() {
+            const dot = document.getElementById('apiDot');
+            const label = document.getElementById('apiStatusLabel');
+            try {
+                await fetch(API_BASE + '/bots', { method: 'GET', signal: AbortSignal.timeout(3000) });
+                dot.classList.add('online');
+                label.textContent = 'API Connected';
+            } catch {
+                dot.classList.remove('online');
+                label.textContent = 'API Offline';
+            }
+        }
+
+        // ── Bot listing ───────────────────────────────────────────────────────────
+
+        async function fetchBots() {
+            try {
+                const bots = await apiCall('GET', '/bots');
+                renderApiBots(Array.isArray(bots) ? bots : []);
+                const active = bots.filter(b => b.status === 'running').length;
+                const online = bots.filter(b => b.status !== 'dead').length;
+                document.getElementById('statTotalBots').textContent = bots.length;
+                document.getElementById('statActiveBots').textContent = active;
+                document.getElementById('statOnline').textContent = online;
+            } catch {
+                renderApiBots([]);
+            }
+        }
+
+        function renderApiBots(bots) {
+            const container = document.getElementById('apiBotCards');
+            container.innerHTML = '';
+            if (bots.length === 0) {
+                container.innerHTML = '<div style="color:#666;font-size:0.85em;padding:8px 0;">No live bots — API offline or no bots spawned</div>';
+                return;
+            }
+            bots.forEach(bot => {
+                const statusClass = { idle: 'idle', running: 'online', error: 'offline', dead: 'offline', starting: 'idle' }[bot.status] || 'idle';
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="player-name">${escapeHtml(bot.name)}<span class="bot-badge">AI</span></span>
+                        <span class="status ${statusClass}">${escapeHtml(bot.status)}</span>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-item"><span>Port:</span><span class="stat-value">${bot.port || '—'}</span></div>
+                        <div class="stat-item"><span>User:</span><span class="stat-value">${escapeHtml(bot.username || '—')}</span></div>
+                        <div class="stat-item"><span>Task:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
+                    </div>
+                    <div class="live-bot-actions">
+                        <button class="btn-sm btn-select" onclick="selectBotByName('${escapeHtml(bot.name)}')">Select</button>
+                        <button class="btn-sm btn-stop" onclick="stopBotByName('${escapeHtml(bot.name)}')">Stop</button>
+                        <button class="btn-sm btn-kill" onclick="killBotByName('${escapeHtml(bot.name)}')">Kill</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ── Bot actions ───────────────────────────────────────────────────────────
+
+        function selectBotByName(name) {
+            selectedBot = name;
+            document.getElementById('targetName').textContent = `Instructing: ${name}`;
+            showApiToast(`Selected bot: ${name}`);
+        }
+
+        async function stopBotByName(name) {
+            try {
+                await apiCall('POST', `/bots/${encodeURIComponent(name)}/stop`, { clear_queue: false });
+                showApiToast(`Stopped ${name}`);
+            } catch (e) {
+                showApiToast(`Stop failed: ${e.message}`, true);
+            }
+        }
+
+        async function stopSelectedBot() {
+            if (!selectedBot) { showApiToast('No bot selected', true); return; }
+            await stopBotByName(selectedBot);
+        }
+
+        async function killBotByName(name) {
+            if (!confirm(`Kill bot "${name}"? This cannot be undone.`)) return;
+            try {
+                await apiCall('DELETE', `/bots/${encodeURIComponent(name)}`);
+                showApiToast(`Killed ${name}`);
+                fetchBots();
+            } catch (e) {
+                showApiToast(`Kill failed: ${e.message}`, true);
+            }
+        }
+
+        async function spawnBot() {
+            const name = document.getElementById('spawnName').value.trim();
+            const port = parseInt(document.getElementById('spawnPort').value.trim(), 10);
+            if (!name || !port) { showApiToast('Bot Name and MC Port are required', true); return; }
+            const body = { name, port };
+            const username = document.getElementById('spawnUsername').value.trim();
+            const environment = document.getElementById('spawnEnvironment').value;
+            const model = document.getElementById('spawnModel').value;
+            if (username) body.username = username;
+            if (environment) body.environment = environment;
+            if (model) body.model = model;
+            try {
+                await apiCall('POST', '/bots', body);
+                showApiToast(`Spawned bot: ${name}`);
+                fetchBots();
+            } catch (e) {
+                showApiToast(`Spawn failed: ${e.message}`, true);
+            }
+        }
+
+        // ── Command panel ─────────────────────────────────────────────────────────
+
+        function updateCommandFields() {
+            const type = document.getElementById('commandType').value;
+            const mainInput = document.getElementById('instructionInput');
+            document.getElementById('subgoalFields').classList.toggle('visible', type === 'subgoal');
+            document.getElementById('skillFields').classList.toggle('visible', type === 'skill');
+            document.getElementById('stopFields').classList.toggle('visible', type === 'stop');
+            const hideMain = type === 'stop';
+            mainInput.style.display = hideMain ? 'none' : '';
+            const placeholders = {
+                task: "Enter task (e.g., 'Mine 10 diamonds')",
+                explore: "Enter exploration goal (e.g., 'Find a village')",
+                subgoal: "Enter overall task description",
+                skill: "Parameters (comma-separated, optional)",
+                stop: ''
+            };
+            mainInput.placeholder = placeholders[type] || '';
+        }
+
+        async function sendInstruction() {
+            if (!selectedBot) { showApiToast('Select a bot first', true); return; }
+            const type = document.getElementById('commandType').value;
+            const text = document.getElementById('instructionInput').value.trim();
+
+            try {
+                if (type === 'task') {
+                    if (!text) { showApiToast('Enter a task', true); return; }
+                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/task`, { task: text });
+                } else if (type === 'explore') {
+                    if (!text) { showApiToast('Enter a goal', true); return; }
+                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/explore`, { goal: text });
+                } else if (type === 'subgoal') {
+                    if (!text) { showApiToast('Enter a task description', true); return; }
+                    const raw = document.getElementById('subGoalsInput').value.trim();
+                    const sub_goals = raw ? raw.split('\n').map(s => s.trim()).filter(Boolean) : [];
+                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/subgoal`, { task: text, sub_goals });
+                } else if (type === 'skill') {
+                    const skill_path = document.getElementById('skillPathInput').value.trim();
+                    if (!skill_path) { showApiToast('Enter a skill path', true); return; }
+                    const paramRaw = text;
+                    const parameters = paramRaw ? paramRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/skill`, { skill_path, parameters });
+                } else if (type === 'stop') {
+                    const clear_queue = document.getElementById('clearQueueInput').checked;
+                    await apiCall('POST', `/bots/${encodeURIComponent(selectedBot)}/stop`, { clear_queue });
+                }
+                showApiToast(`✓ ${type} sent to ${selectedBot}`);
+                document.getElementById('instructionInput').value = '';
+            } catch (e) {
+                showApiToast(`Error: ${e.message}`, true);
+            }
+        }
+
+        // Allow Ctrl+Enter to send instruction
         document.getElementById('instructionInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter' && e.ctrlKey) {
                 sendInstruction();

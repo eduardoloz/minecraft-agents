@@ -192,19 +192,37 @@
             font-weight: bold;
         }
 
-        .health-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 3px;
+        /* Minecraft hearts (replaces health-bar) */
+        .hearts-container {
+            display: flex;
+            gap: 2px;
+            align-items: center;
             margin-top: 8px;
-            overflow: hidden;
+            flex-wrap: wrap;
         }
 
-        .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #22c55e, #fbbf24);
-            border-radius: 3px;
+        .heart-sprite {
+            width: 18px;
+            height: 18px;
+            background-image: url('assets/hearts/hearts_sprite_sheet.png');
+            background-size: 54px 18px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .heart-sprite.full {
+            background-position: 0 0;
+        }
+
+        .heart-sprite.half {
+            background-position: -18px 0;
+        }
+
+        .heart-sprite.empty {
+            background-position: -36px 0;
         }
 
         .bot-badge {
@@ -501,9 +519,7 @@
                             <span class="stat-value">2840</span>
                         </div>
                     </div>
-                    <div class="health-bar">
-                        <div class="health-fill" style="width: 95%;"></div>
-                    </div>
+                    <div class="hearts-container" data-health="95"></div>
                 </div>
 
                 <div class="card">
@@ -525,9 +541,7 @@
                             <span class="stat-value">1920</span>
                         </div>
                     </div>
-                    <div class="health-bar">
-                        <div class="health-fill" style="width: 85%;"></div>
-                    </div>
+                    <div class="hearts-container" data-health="85"></div>
                 </div>
 
                 <div class="card">
@@ -549,9 +563,7 @@
                             <span class="stat-value">3500</span>
                         </div>
                     </div>
-                    <div class="health-bar">
-                        <div class="health-fill" style="width: 100%;"></div>
-                    </div>
+                    <div class="hearts-container" data-health="100"></div>
                 </div>
             </div>
         </div>
@@ -579,9 +591,7 @@
                             <span class="stat-value">94%</span>
                         </div>
                     </div>
-                    <div class="health-bar">
-                        <div class="health-fill" style="width: 98%;"></div>
-                    </div>
+                    <div class="hearts-container" data-health="98"></div>
                 </div>
 
                 <div class="card">
@@ -603,9 +613,7 @@
                             <span class="stat-value">68%</span>
                         </div>
                     </div>
-                    <div class="health-bar">
-                        <div class="health-fill" style="width: 100%;"></div>
-                    </div>
+                    <div class="hearts-container" data-health="100"></div>
                 </div>
 
                 <div class="card">
@@ -627,9 +635,7 @@
                             <span class="stat-value">1240</span>
                         </div>
                     </div>
-                    <div class="health-bar">
-                        <div class="health-fill" style="width: 92%;"></div>
-                    </div>
+                    <div class="hearts-container" data-health="92"></div>
                 </div>
             </div>
         </div>
@@ -717,8 +723,40 @@
     <script>
         let selectedBot = null;
 
+        // Render hearts based on data-health (percent 0-100 maps to 10 hearts)
+        function renderHearts(container, healthPercent) {
+            container.innerHTML = '';
+            const totalHearts = 10;
+            const heartsFilled = (healthPercent / 100) * totalHearts; // 0-10
+            const fullHearts = Math.floor(heartsFilled);
+            const halfHeart = heartsFilled % 1 >= 0.5;
+            const emptyHearts = totalHearts - fullHearts - (halfHeart ? 1 : 0);
+
+            for (let i = 0; i < fullHearts; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-sprite full';
+                container.appendChild(heart);
+            }
+            if (halfHeart) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-sprite half';
+                container.appendChild(heart);
+            }
+            for (let i = 0; i < emptyHearts; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-sprite empty';
+                container.appendChild(heart);
+            }
+        }
+
         // Card click handler
         document.addEventListener('DOMContentLoaded', function () {
+            // Render all hearts based on data-health
+            document.querySelectorAll('.hearts-container[data-health]').forEach(container => {
+                const health = parseInt(container.getAttribute('data-health'), 10) || 100;
+                renderHearts(container, health);
+            });
+
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
                 card.addEventListener('click', function (e) {

@@ -1,9 +1,9 @@
 import os
 
 import odyssey.utils as U
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.schema import HumanMessage, SystemMessage
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 
 from odyssey.prompts import load_prompt
 from odyssey.control_primitives import load_control_primitives

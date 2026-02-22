@@ -1,7 +1,13 @@
+import os
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-GEMINI_API_KEY = "AIzaSyBNQKOD0ZabgxZADhpi2MfufPeB2L1a-b4"
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY not set — add it to Odyssey/LLM-Backend/.env")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 class GeminiModel:

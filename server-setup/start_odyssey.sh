@@ -1,10 +1,13 @@
 #!/bin/bash
-NODE_PORT="${1:-3000}"
-MC_USERNAME="${2:-bot}"
+# Usage: ./start_odyssey.sh [api_port]
+#   api_port  Port for the REST API server (default: 8000)
+#
+# Bots are spawned at runtime via the API — see server.js for endpoints.
+# Each bot needs a unique mineflayer port, passed when spawning via POST /bots.
+API_PORT="${1:-8000}"
 
-export ODYSSEY_NODE_PORT="$NODE_PORT"
-export ODYSSEY_USERNAME="$MC_USERNAME"
-
+# Activate the venv so child bot_runner.py processes inherit the right python
 source ~/MINECRAFTEXPERIMENTS/AgenticMinecraft/server-setup/venv/bin/activate
+
 cd ~/MINECRAFTEXPERIMENTS/AgenticMinecraft/Odyssey/Odyssey
-python main.py
+node server.js "$API_PORT"

@@ -1,0 +1,33 @@
+Odyssey Bot Server on http://0.0.0.0:8001
+  POST   /bots                  spawn a bot
+  GET    /bots                  list all bots
+  GET    /bots/:name            bot status
+  DELETE /bots/:name            destroy a bot
+  POST   /bots/:name/task       free-form task
+  POST   /bots/:name/subgoal    ordered subgoals
+  POST   /bots/:name/explore    exploration mode
+  POST   /bots/:name/skill      run JS skill file
+  POST   /bots/:name/stop       interrupt task
+[bot1] ready
+[test] ready
+[testbot] ready
+[bot1] started: mine 5 wood logs
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] wait ready_event to set
+[bot1] Subprocess mineflayer started with PID 846653.
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] 
+[bot1] started: mine 5 wood logs

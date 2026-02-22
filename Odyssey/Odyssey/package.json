@@ -1,0 +1,12 @@
+{
+  "name": "odyssey-server",
+  "version": "1.0.0",
+  "description": "REST API server for Odyssey bots",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

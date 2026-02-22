@@ -1,9 +1,9 @@
 import os
 
 import odyssey.utils as U
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.schema import HumanMessage, SystemMessage
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 
 from odyssey.prompts import load_prompt
 from odyssey.control_primitives import load_control_primitives
@@ -39,7 +39,7 @@ class SkillManager:
         self.ckpt_dir = ckpt_dir
         self.vectordb = Chroma(
             collection_name="skill_vectordb",
-            embedding_function=HuggingFaceEmbeddings(model_name=embedding_model),
+            embedding_function=GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=os.environ['GEMINI_API_KEY']),
             persist_directory=f"{ckpt_dir}/skill/vectordb",
         )
         if reload:

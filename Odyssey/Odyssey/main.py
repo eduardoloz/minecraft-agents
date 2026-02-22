@@ -9,7 +9,7 @@ logger = get_logger('main')
 mc_port = config.get('MC_SERVER_PORT')
 mc_host = config.get('MC_SERVER_HOST')
 node_port = int(os.environ.get('ODYSSEY_NODE_PORT', config.get('NODE_SERVER_PORT')))
-mc_username = os.environ.get('ODYSSEY_USERNAME', 'bot')
+mc_username = os.environ.get('ODYSSEY_USERNAME')
 embedding_dir = config.get('SENTENT_EMBEDDING_DIR')
 env_wait_ticks = 100
 def test_subgoal():

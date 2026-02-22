@@ -84,6 +84,59 @@ h1 {
     text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
 }
 
+.section-title-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #c0c0c0;
+}
+
+.conv-turn {
+    margin-bottom: 8px;
+    border: 2px solid #444;
+}
+
+.conv-turn-header {
+    padding: 10px 15px;
+    background: rgba(0,0,0,0.3);
+    cursor: pointer;
+    font-weight: bold;
+    color: #c0c0c0;
+    user-select: none;
+}
+
+.conv-turn-header:hover { background: rgba(255,255,255,0.05); }
+
+.conv-section-header {
+    padding: 7px 15px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: bold;
+    user-select: none;
+    border-top: 1px solid #333;
+}
+
+.conv-section-header:hover { background: rgba(255,255,255,0.04); }
+
+.conv-system { color: #c0a060; }
+.conv-human  { color: #22c55e; }
+.conv-ai     { color: #a78bfa; }
+
+.conv-text {
+    padding: 10px 15px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Pixelify Sans', 'Minecraft', 'Arial', sans-serif;
+    font-size: 0.82em;
+    color: #d0d0d0;
+    max-height: 320px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
+    border-top: 1px solid #222;
+}
+
 .cards { display: flex; flex-direction: column; gap: 15px; }
 
 .card {

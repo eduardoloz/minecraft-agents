@@ -81,6 +81,16 @@
             </div>
         </div>
 
+        <!-- Conversations Panel -->
+        <div class="section" id="conversationsSection" style="display:none;">
+            <div class="section-title-row">
+                <div class="section-title" style="margin-bottom:0; border-bottom:none;">💬 LLM Conversations — <span id="convBotName" style="color:#a78bfa;"></span></div>
+                <button class="btn-sm btn-select" onclick="fetchConversations()" style="margin-left:auto;">↻ Refresh</button>
+            </div>
+            <div style="color:#a0a0a0; margin:8px 0 12px; font-size:0.85em;">Live LLM turns for selected bot. Each turn = one action-agent attempt.</div>
+            <div id="conversationsContainer"></div>
+        </div>
+
         <!-- Server Activity Log -->
         <div class="section">
             <div class="section-title">📡 Server Activity</div>
@@ -233,10 +243,75 @@
 
         // ── Bot actions ───────────────────────────────────────────────────────────
 
+        let _convPollInterval = null;
+
         function selectBotByName(name) {
             selectedBot = name;
             document.getElementById('targetName').textContent = `Instructing: ${name}`;
+            document.getElementById('convBotName').textContent = name;
+            document.getElementById('conversationsSection').style.display = '';
             showApiToast(`Selected bot: ${name}`);
+            fetchConversations();
+            if (_convPollInterval) clearInterval(_convPollInterval);
+            _convPollInterval = setInterval(fetchConversations, 3000);
+        }
+
+        async function fetchConversations() {
+            if (!selectedBot) return;
+            try {
+                const data = await apiCall('GET', `/bots/${encodeURIComponent(selectedBot)}/conversations`);
+                renderConversations(data.conversations || []);
+            } catch (e) {
+                console.error('Failed to fetch conversations:', e);
+            }
+        }
+
+        function renderConversations(conversations) {
+            const container = document.getElementById('conversationsContainer');
+            if (conversations.length === 0) {
+                container.innerHTML = '<div style="color:#666; font-size:0.85em; padding:12px 0;">No LLM turns yet — waiting for bot activity...</div>';
+                return;
+            }
+            container.innerHTML = '';
+            conversations.forEach(([system, human, ai], i) => {
+                const isLast = i === conversations.length - 1;
+                const turn = document.createElement('div');
+                turn.className = 'conv-turn';
+                turn.innerHTML = `
+                    <div class="conv-turn-header" onclick="toggleTurn(this)">
+                        ${isLast ? '▼' : '▶'} Turn ${i + 1} of ${conversations.length}
+                    </div>
+                    <div class="conv-turn-body" style="${isLast ? '' : 'display:none;'}">
+                        <div class="conv-section">
+                            <div class="conv-section-header conv-system" onclick="toggleSection(this)">▶ ⚙ System Prompt</div>
+                            <pre class="conv-text conv-section-body" style="display:none;">${escapeHtml(system)}</pre>
+                        </div>
+                        <div class="conv-section">
+                            <div class="conv-section-header conv-human" onclick="toggleSection(this)">▼ 👤 Human Message</div>
+                            <pre class="conv-text conv-section-body">${escapeHtml(human)}</pre>
+                        </div>
+                        <div class="conv-section">
+                            <div class="conv-section-header conv-ai" onclick="toggleSection(this)">▼ 🤖 AI Response</div>
+                            <pre class="conv-text conv-section-body">${escapeHtml(ai)}</pre>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(turn);
+            });
+        }
+
+        function toggleTurn(header) {
+            const body = header.nextElementSibling;
+            const open = body.style.display !== 'none';
+            body.style.display = open ? 'none' : '';
+            header.textContent = header.textContent.replace(open ? '▼' : '▶', open ? '▶' : '▼');
+        }
+
+        function toggleSection(header) {
+            const body = header.nextElementSibling;
+            const open = body.style.display !== 'none';
+            body.style.display = open ? 'none' : '';
+            header.textContent = header.textContent.replace(open ? '▼' : '▶', open ? '▶' : '▼');
         }
 
         async function stopBotByName(name) {

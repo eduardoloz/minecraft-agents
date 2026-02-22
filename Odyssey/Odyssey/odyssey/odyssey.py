@@ -192,7 +192,7 @@ class Odyssey:
         self.action_agent_rollout_num_iter = 0
         self.task = task
         self.context = context
-        if reset_env:
+        if reset_env or not self.env.has_reset:
             self.env.reset(
                 options={
                     "mode": "soft",
@@ -306,7 +306,9 @@ class Odyssey:
             self.messages = [system_message, human_message]
         else:
             assert isinstance(parsed_result, str)
-            self.totoal_time, self.total_iter = self.recorder.record([], self.task)
+            self.recorder.iteration += 1
+            self.totoal_time = self.recorder.elapsed_time
+            self.total_iter = self.recorder.iteration
             self.logger.warning(f"{parsed_result} Trying again!")
         self.step_time.append(self.totoal_time)
         self.logger.info(self.totoal_time)
@@ -329,7 +331,8 @@ class Odyssey:
             info["program_name"] = parsed_result["program_name"]
         # else:
         #     self.logger.debug(f"****Action Agent human message****\n{self.messages[-1].content}")
-        return self.messages, self.last_events[-1][1]["inventory"], done, info
+        inventory = self.last_events[-1][1]["inventory"] if self.last_events else {}
+        return self.messages, inventory, done, info
 
     def rollout(self, *, task, context, reset_env=True):
         self.reset(task=task, context=context, reset_env=reset_env)

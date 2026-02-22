@@ -1,7 +1,23 @@
 const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mineflayer = require("mineflayer");
+
+// ── Logging setup ─────────────────────────────────────────────────────────────
+const LOG_DIR = path.join(__dirname, "..", "..", "..", "logs");
+if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+
+const PORT_ARG = process.argv[2] || "3000";
+const LOG_FILE = path.join(LOG_DIR, `mineflayer-${PORT_ARG}.log`);
+
+function log(tag, data) {
+    const ts = new Date().toISOString();
+    const line = `[${ts}] [${tag}] ${typeof data === "string" ? data : JSON.stringify(data)}\n`;
+    fs.appendFileSync(LOG_FILE, line);
+    // also print to stdout so the terminal shows it
+    process.stdout.write(line);
+}
 
 const skills = require("./lib/skillLoader");
 const { initCounter, getNextTime } = require("./lib/utils");
@@ -16,6 +32,7 @@ const Chests = require("./lib/observation/chests");
 const { plugin: tool } = require("mineflayer-tool");
 
 let bot = null;
+let _stepAbort = null;  // set to a resolve fn while a /step is in progress
 
 const app = express();
 
@@ -23,6 +40,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
 
 app.post("/start", (req, res) => {
+    log("START", { host: req.body.host, port: req.body.port, username: req.body.username, reset: req.body.reset });
     if (bot) onDisconnect("Restarting bot");
     bot = null;
     console.log(req.body);
@@ -149,7 +167,19 @@ app.post("/start", (req, res) => {
     }
 });
 
+app.post("/abort", (req, res) => {
+    log("ABORT", "aborting current step");
+    if (bot) {
+        try { if (bot.pathfinder) bot.pathfinder.setGoal(null); } catch(e) {}
+        try { if (bot.pvp)        bot.pvp.stop();               } catch(e) {}
+        try { if (bot.collectBlock) bot.collectBlock.cancelTask(); } catch(e) {}
+    }
+    if (_stepAbort) { _stepAbort(); _stepAbort = null; }
+    res.json({ status: 'aborted' });
+});
+
 app.post("/step", async (req, res) => {
+    log("STEP", { code: req.body.code });
     // import useful package
     let response_sent = false;
 
@@ -256,13 +286,25 @@ app.post("/step", async (req, res) => {
     const programs = req.body.programs;
     bot.cumulativeObs = [];
     await bot.waitForTicks(bot.waitTicks);
-    const r = await evaluateCode(code, programs);
-    if (r !== "success") {
+    const abortPromise = new Promise(resolve => { _stepAbort = resolve; });
+    const r = await Promise.race([
+        evaluateCode(code, programs),
+        abortPromise.then(() => new Error('Task aborted')),
+    ]);
+    _stepAbort = null;
+    if (r instanceof Error && r.message === 'Task aborted') {
+        log("STEP_ABORTED", "step interrupted cleanly");
+        try { bot.emit("error", "Task aborted"); } catch(e) {}
+    } else if (r !== "success") {
+        const errMsg = handleError(r);
+        log("STEP_ERROR", { error: typeof errMsg === "string" ? errMsg : String(errMsg) });
         try {
-            bot.emit("error", handleError(r));
+            bot.emit("error", errMsg);
         } catch (e) {
             // bot has no error listener; error is already captured in r and will be returned via observe()
         }
+    } else {
+        log("STEP_OK", "code executed successfully");
     }
     process.off("uncaughtException", otherError);
     await returnItems();
@@ -420,6 +462,7 @@ app.post("/step", async (req, res) => {
 });
 
 app.post("/stop", (req, res) => {
+    log("STOP", "bot stop requested");
     bot.end();
     res.json({
         message: "Bot stopped",
@@ -427,6 +470,7 @@ app.post("/stop", (req, res) => {
 });
 
 app.post("/pause", (req, res) => {
+    log("PAUSE", "bot pause requested");
     if (!bot) {
         res.status(400).json({ error: "Bot not spawned" });
         return;

@@ -5,6 +5,7 @@ from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.schema import HumanMessage, SystemMessage
 from langchain_community.vectorstores import Chroma
 
+from odyssey.agents.llama import call_with_messages
 from odyssey.prompts import load_prompt
 from odyssey.control_primitives import load_control_primitives
 from odyssey.utils.logger import get_logger
@@ -126,7 +127,7 @@ class SkillManager:
                 + f"The main function is `{program_name}`."
             ),
         ]
-        skill_description = f"    // { self.llm(messages).content}"
+        skill_description = f"    // { call_with_messages(messages).content}"
         return f"async function {program_name}(bot) {{\n{skill_description}\n}}"
 
     def retrieve_skills(self, query):

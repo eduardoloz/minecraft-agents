@@ -43,6 +43,12 @@ const bots = {};
 
 // ── Bot lifecycle ─────────────────────────────────────────────────────────────
 
+// Use the venv python if available (set when start_odyssey.sh activates the venv),
+// otherwise fall back to python3.
+const PYTHON = process.env.VIRTUAL_ENV
+    ? path.join(process.env.VIRTUAL_ENV, 'bin', 'python')
+    : 'python3';
+
 function spawnBot(name, port, username, environment, model) {
     const args = [
         path.join(__dirname, 'bot_runner.py'),
@@ -53,7 +59,7 @@ function spawnBot(name, port, username, environment, model) {
     ];
     if (model) args.push('--model', model);
 
-    const proc = spawn('python', args, {
+    const proc = spawn(PYTHON, args, {
         cwd:   __dirname,
         stdio: ['pipe', 'pipe', 'inherit'],  // stdin+stdout piped, stderr straight to terminal
     });

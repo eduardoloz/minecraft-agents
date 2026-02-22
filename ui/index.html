@@ -124,14 +124,6 @@
                     <input type="text" id="spawnName" placeholder="bot1">
                 </div>
                 <div class="spawn-form-group">
-                    <label>MC Port *</label>
-                    <input type="text" id="spawnPort" placeholder="3000">
-                </div>
-                <div class="spawn-form-group">
-                    <label>Username</label>
-                    <input type="text" id="spawnUsername" placeholder="Steve">
-                </div>
-                <div class="spawn-form-group">
                     <label>Environment</label>
                     <select id="spawnEnvironment">
                         <option value="">Default</option>
@@ -139,17 +131,6 @@
                         <option value="combat">Combat</option>
                         <option value="farming">Farming</option>
                         <option value="subgoal">Subgoal</option>
-                    </select>
-                </div>
-                <div class="spawn-form-group">
-                    <label>Model</label>
-                    <select id="spawnModel">
-                        <option value="">Default</option>
-                        <option value="llama3_8b_v3">llama3_8b_v3</option>
-                        <option value="llama3_8b">llama3_8b</option>
-                        <option value="llama3_70b_v1">llama3_70b_v1</option>
-                        <option value="qwen2-7b">qwen2-7b</option>
-                        <option value="qwen2-72b">qwen2-72b</option>
                     </select>
                 </div>
             </div>
@@ -242,8 +223,6 @@
                         <span class="status ${statusClass}">${escapeHtml(bot.status)}</span>
                     </div>
                     <div class="card-stats">
-                        <div class="stat-item"><span>Port:</span><span class="stat-value">${bot.port ?? '—'}</span></div>
-                        <div class="stat-item"><span>User:</span><span class="stat-value">${escapeHtml(bot.username || '—')}</span></div>
                         <div class="stat-item"><span>Task:</span><span class="stat-value">${escapeHtml(bot.currentTask || 'idle')}</span></div>
                     </div>
                     <div class="live-bot-actions">
@@ -351,15 +330,10 @@
 
         async function spawnBot() {
             const name = document.getElementById('spawnName').value.trim();
-            const port = parseInt(document.getElementById('spawnPort').value.trim(), 10);
-            if (!name || !port) { showApiToast('Bot Name and MC Port are required', true); return; }
-            const body = { name, port };
-            const username    = document.getElementById('spawnUsername').value.trim();
+            if (!name) { showApiToast('Bot Name is required', true); return; }
+            const body = { name };
             const environment = document.getElementById('spawnEnvironment').value;
-            const model       = document.getElementById('spawnModel').value;
-            if (username)    body.username    = username;
             if (environment) body.environment = environment;
-            if (model)       body.model       = model;
             try {
                 await apiCall('POST', '/bots', body);
                 showApiToast(`Spawned bot: ${name}`);

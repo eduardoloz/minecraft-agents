@@ -89,6 +89,15 @@ def _run(label: str, fn, *args, **kwargs):
     """Execute a blocking Odyssey method and emit done/error events."""
     global _current_thread
     emit({'event': 'started', 'label': label})
+
+    def on_turn(turn):
+        try:
+            serialisable_turn = json.loads(json.dumps(list(turn), default=str))
+        except Exception:
+            serialisable_turn = [str(t) for t in turn]
+        emit({'event': 'turn', 'label': label, 'turn': serialisable_turn})
+
+    odyssey._on_turn = on_turn
     try:
         result = fn(*args, **kwargs)
         # Attempt to make the result JSON-serialisable
@@ -101,13 +110,13 @@ def _run(label: str, fn, *args, **kwargs):
         emit({'event': 'error', 'label': label, 'message': str(e)})
         traceback.print_exc(file=sys.stderr)
     finally:
+        odyssey._on_turn = None
         _current_thread = None
 
 def dispatch(label: str, fn, *args, **kwargs):
     """Start a task in a background thread. Rejects if already running."""
     global _current_thread
     if _current_thread and _current_thread.is_alive():
-        emit({'event': 'error', 'label': label, 'message': 'bot is busy'})
         return
     _current_thread = threading.Thread(
         target=_run, args=(label, fn) + args, kwargs=kwargs, daemon=True
@@ -149,17 +158,14 @@ def handle(cmd: dict):
                  skill_path=skill_path, parameters=parameters)
 
     elif action == 'stop':
-        # Interrupt the running step via mineflayer's /abort endpoint.
-        # This stops the current skill execution and unblocks the task thread
-        # without disconnecting the bot from Minecraft.
+        # Signal the learn() loop to exit, then abort the current JS step.
+        odyssey.request_stop()
         if _current_thread and _current_thread.is_alive():
             try:
                 import requests as _req
                 _req.post(f"{odyssey.env.server}/abort", timeout=5)
             except Exception:
                 pass
-        else:
-            emit({'event': 'error', 'label': '', 'message': 'nothing is running'})
 
     elif action == 'exit':
         try:

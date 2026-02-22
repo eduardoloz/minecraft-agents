@@ -67,13 +67,15 @@ function spawnBot(name, port, username, environment, model) {
     const state = {
         proc,
         name,
-        username:    username || name,
+        username:     username || name,
         port,
-        status:      'starting',   // starting | idle | running | error | dead
-        currentTask: null,
-        lastResult:  null,
-        error:       null,
-        taskQueue:   [],           // ordered list of pending commands
+        status:       'starting',   // starting | idle | running | error | dead
+        currentTask:  null,
+        lastResult:   null,
+        conversations: [],          // LLM turns from last task: [[system, human, ai], ...]
+        error:        null,
+        taskQueue:    [],           // ordered list of pending commands
+        autoExploring: false,       // true when idling in background exploration
     };
 
     // Read structured events from the Python process
@@ -92,12 +94,17 @@ function spawnBot(name, port, username, environment, model) {
             case 'ready':
                 state.status = 'idle';
                 console.log(`[${name}] ready`);
+                dispatchNext(state);   // start exploring immediately if queue is empty
                 break;
             case 'started':
-                state.status      = 'running';
-                state.currentTask = msg.label;
-                state.error       = null;
+                state.status        = 'running';
+                state.currentTask   = msg.label;
+                state.conversations = [];   // fresh slate for each new task
+                state.error         = null;
                 console.log(`[${name}] started: ${msg.label}`);
+                break;
+            case 'turn':
+                state.conversations.push(msg.turn);
                 break;
             case 'done':
                 state.status      = 'idle';
@@ -110,7 +117,8 @@ function spawnBot(name, port, username, environment, model) {
                 state.status      = 'error';
                 state.currentTask = null;
                 state.error       = msg.message;
-                console.error(`[${name}] error: ${msg.message}`);
+                if (msg.message !== 'bot is busy')
+                    console.error(`[${name}] error: ${msg.message}`);
                 dispatchNext(state);
                 break;
             default:
@@ -133,9 +141,14 @@ function sendCmd(name, cmd) {
     return true;
 }
 
-// Dispatch the next queued command if the bot is idle
+// Dispatch the next queued command, or fall back to open-ended exploration.
 function dispatchNext(state) {
-    if (state.taskQueue.length === 0) return;
+    if (state.taskQueue.length === 0) {
+        state.autoExploring = true;
+        sendCmd(state.name, { action: 'explore', goal: 'kill endermen', reset_env: false });
+        return;
+    }
+    state.autoExploring = false;
     const next = state.taskQueue.shift();
     // Always reset_env=false for queued tasks — bot stays connected
     next.reset_env = false;
@@ -144,14 +157,15 @@ function dispatchNext(state) {
 
 function botInfo(s) {
     return {
-        name:        s.name,
-        username:    s.username,
-        port:        s.port,
-        status:      s.status,
-        currentTask: s.currentTask,
-        lastResult:  s.lastResult,
-        error:       s.error,
-        queue:       s.taskQueue.map(c => c.task || c.goal || c.skill_path || c.action),
+        name:          s.name,
+        username:      s.username,
+        port:          s.port,
+        status:        s.status,
+        autoExploring: s.autoExploring,
+        currentTask:   s.currentTask,
+        lastResult:    s.lastResult,
+        error:         s.error,
+        queue:         s.taskQueue.map(c => c.task || c.goal || c.skill_path || c.action),
     };
 }
 
@@ -182,6 +196,17 @@ app.get('/bots', (req, res) => {
     const result = {};
     for (const [name, state] of Object.entries(bots)) result[name] = botInfo(state);
     res.json(result);
+});
+
+// DELETE /bots  — kill and remove all bots
+app.delete('/bots', (req, res) => {
+    const killed = Object.keys(bots);
+    for (const name of killed) {
+        sendCmd(name, { action: 'exit' });
+        setTimeout(() => bots[name]?.proc.kill(), 500);
+        delete bots[name];
+    }
+    res.json({ status: 'all bots stopped', killed });
 });
 
 // GET /bots/:name
@@ -215,13 +240,14 @@ app.post('/bots/:name/task', (req, res) => {
     const cmd = { action: 'task', task, reset_env };
 
     if (state.status === 'running') {
-        if (preempt) {
-            // Preempt: put new task at front of queue, stop current
+        if (preempt || state.autoExploring) {
+            // Preempt: put new task at front of queue, stop current (auto-preempts background exploration)
+            state.autoExploring = false;
             state.taskQueue.unshift(cmd);
             sendCmd(req.params.name, { action: 'stop' });
             return res.json({ status: 'preempting', task });
         }
-        // Bot busy — append to queue
+        // Bot busy with a real task — append to queue
         state.taskQueue.push(cmd);
         return res.json({ status: 'queued', task, queueLength: state.taskQueue.length });
     }
@@ -246,7 +272,8 @@ app.post('/bots/:name/subgoal', (req, res) => {
     const cmd = { action: 'subgoal', task, sub_goals, reset_env };
 
     if (state.status === 'running') {
-        if (preempt) {
+        if (preempt || state.autoExploring) {
+            state.autoExploring = false;
             state.taskQueue.unshift(cmd);
             sendCmd(req.params.name, { action: 'stop' });
             return res.json({ status: 'preempting', task });
@@ -272,7 +299,8 @@ app.post('/bots/:name/explore', (req, res) => {
     const cmd = { action: 'explore', goal, reset_env };
 
     if (state.status === 'running') {
-        if (preempt) {
+        if (preempt || state.autoExploring) {
+            state.autoExploring = false;
             state.taskQueue.unshift(cmd);
             sendCmd(req.params.name, { action: 'stop' });
             return res.json({ status: 'preempting', goal });
@@ -300,7 +328,8 @@ app.post('/bots/:name/skill', (req, res) => {
     const cmd = { action: 'skill', skill_path, parameters };
 
     if (state.status === 'running') {
-        if (preempt) {
+        if (preempt || state.autoExploring) {
+            state.autoExploring = false;
             state.taskQueue.unshift(cmd);
             sendCmd(req.params.name, { action: 'stop' });
             return res.json({ status: 'preempting', skill_path });
@@ -328,6 +357,16 @@ app.post('/bots/:name/stop', (req, res) => {
     if (state.status !== 'running') return res.json({ status: 'already idle', name: req.params.name });
     sendCmd(req.params.name, { action: 'stop' });
     res.json({ status: 'stop signal sent', name: req.params.name });
+});
+
+// ── Conversations ─────────────────────────────────────────────────────────────
+
+// GET /bots/:name/conversations
+// Returns LLM turns from the last completed task: [[system, human, ai], ...]
+app.get('/bots/:name/conversations', (req, res) => {
+    const state = bots[req.params.name];
+    if (!state) return notFound(req.params.name, res);
+    res.json({ conversations: state.conversations });
 });
 
 // ── Queue management ──────────────────────────────────────────────────────────
@@ -375,6 +414,7 @@ app.listen(PORT, () => {
     console.log(`Odyssey Bot Server on http://0.0.0.0:${PORT}`);
     console.log('  POST   /bots                      spawn a bot');
     console.log('  GET    /bots                      list all bots');
+    console.log('  DELETE /bots                      kill all bots');
     console.log('  GET    /bots/:name                bot status + queue');
     console.log('  DELETE /bots/:name                destroy a bot');
     console.log('  POST   /bots/:name/task           run task  (?preempt=true to interrupt)');
@@ -382,6 +422,7 @@ app.listen(PORT, () => {
     console.log('  POST   /bots/:name/explore        exploration mode');
     console.log('  POST   /bots/:name/skill          run JS skill file');
     console.log('  POST   /bots/:name/stop           interrupt task  (clear_queue?)');
+    console.log('  GET    /bots/:name/conversations   LLM turns from last task');
     console.log('  GET    /bots/:name/queue          view task queue');
     console.log('  DELETE /bots/:name/queue          clear task queue');
     console.log('  DELETE /bots/:name/queue/pop      pop next queued task');

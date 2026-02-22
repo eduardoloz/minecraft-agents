@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import time
+import threading
 from typing import Dict
 
 from javascript import require
@@ -179,6 +180,12 @@ class Odyssey:
         self.recorder = U.EventRecorder(ckpt_dir=ckpt_dir, resume=resume)
         self.resume = resume
 
+        # stop flag — set via request_stop() to exit the learn() loop cleanly
+        self._stop_flag = threading.Event()
+
+        # optional callback fired after each LLM turn: fn(system, human, ai)
+        self._on_turn = None
+
         # init variables for rollout
         self.action_agent_rollout_num_iter = -1
         self.task = None
@@ -222,6 +229,10 @@ class Odyssey:
         self.conversations = []
         return self.messages
 
+    def request_stop(self):
+        """Signal the learn() loop to exit after the current step."""
+        self._stop_flag.set()
+
     def close(self):
         self.env.close()
 
@@ -234,9 +245,10 @@ class Odyssey:
             self.logger.debug(f'human mesasges: {self.messages[1].content}')
             ai_message = call_with_messages(self.messages, self.action_agent_model_name)
             self.logger.debug(f"response: {ai_message.content}")
-        self.conversations.append(
-            (self.messages[0].content, self.messages[1].content, ai_message.content)
-        )
+        turn = (self.messages[0].content, self.messages[1].content, ai_message.content)
+        self.conversations.append(turn)
+        if self._on_turn:
+            self._on_turn(turn)
         with Timer('Process Select Skill Response'):
             parsed_result = self.action_agent.process_ai_message(message=ai_message, skills=self.skills[0])
             self.logger.debug(f"parsed_result: {parsed_result}")
@@ -343,6 +355,7 @@ class Odyssey:
         return messages, reward, done, info
 
     def learn(self, goals=None, reset_env=True):
+        self._stop_flag.clear()
         self.inventory = []
         self.recorder.elapsed_time = 0
         self.recorder.iteration = 0
@@ -374,6 +387,9 @@ class Odyssey:
         with Timer('env step empty string'):
             self.last_events = self.env.step("")
         while True:
+            if self._stop_flag.is_set():
+                self.logger.info("Stop requested — exiting learn loop")
+                break
             if self.recorder.iteration > self.max_iterations:
                 self.logger.warning("Iteration limit reached")
                 break
